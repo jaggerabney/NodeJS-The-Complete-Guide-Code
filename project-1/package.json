@@ -1,0 +1,12 @@
+{
+  "name": "project-1",
+  "version": "1.0.0",
+  "description": "First project",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
+  },
+  "author": "Jagger Abney",
+  "license": "ISC"
+}
