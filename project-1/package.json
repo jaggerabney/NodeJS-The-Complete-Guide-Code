@@ -8,5 +8,8 @@
     "start": "node app.js"
   },
   "author": "Jagger Abney",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
 }
