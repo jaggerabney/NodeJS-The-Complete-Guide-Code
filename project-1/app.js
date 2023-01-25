@@ -8,7 +8,10 @@ const shopRoutes = require("./routes/shop");
 
 const app = express();
 
-app.engine("handlebars", handlebars());
+app.engine(
+  "handlebars",
+  handlebars({ layoutsDir: "views/layouts/", defaultLayout: "main-layout" })
+);
 app.set("view engine", "handlebars");
 app.set("views", "views");
 
