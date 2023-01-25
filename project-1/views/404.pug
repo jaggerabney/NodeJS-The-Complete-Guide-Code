@@ -4,10 +4,8 @@ html(lang="en")
         meta(charset="UTF-8")
         meta(http-equiv="X-UA-Compatible", content="IE=edge")
         meta(name="viewport", content="width=device-width, initial-scale=1.0")
-        title #{title}
+        title Page Not Found
         link(rel="stylesheet", href="/css/main.css")
-        link(rel="stylesheet", href="/css/forms.css")
-        link(rel="stylesheet", href="/css/product.css")
     body 
         header.main-header 
             nav.main-header__nav 
@@ -15,12 +13,7 @@ html(lang="en")
                     li.main-header__item 
                         a(href="/") Shop 
                     li.main-header__item
-                        a.active(href="/admin/add-product") Add Product
+                        a(href="/admin/add-product") Add Product
 
-        main 
-            form.product-form(action="/admin/add-product", method="POST")
-                .form-control 
-                    label(for="title") Title 
-                    input(type="text", name="title")#title 
-                
-                button.btn(type="submit") Add Product
+        main
+            h1 Page Not Found!
