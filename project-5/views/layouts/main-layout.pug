@@ -6,6 +6,7 @@ html(lang="en")
         meta(name="viewport", content="width=device-width, initial-scale=1.0")
         title #{title}
         link(rel="stylesheet", href="/css/main.css")
+        block styles
     body 
         header.main-header
             nav.main-header__nav
@@ -14,3 +15,6 @@ html(lang="en")
                         li.main-header__nav-item Home 
                     a(href="/users") 
                         li.main-header__nav-item Users
+        
+        main.main-content
+            block content
