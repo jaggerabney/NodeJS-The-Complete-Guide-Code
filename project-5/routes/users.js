@@ -2,8 +2,17 @@ const express = require("express");
 
 const router = express.Router();
 
+const users = [];
+
 router.get("/users", (req, res, next) => {
-  res.render("users", { title: "Users " });
+  res.render("users", { title: "Users ", users: users });
 });
 
-module.exports = router;
+router.post("/users", (req, res, next) => {
+  users.push({ username: req.body.username });
+  console.log(req.body.username);
+  res.redirect("/");
+});
+
+exports.route = router;
+exports.users = users;

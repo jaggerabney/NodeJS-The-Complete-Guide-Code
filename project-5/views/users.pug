@@ -5,16 +5,10 @@ block styles
 
 block content 
     h1.main-content__title Users
-    ul.main-content__users-list
-        li.main-content__user 
-            img(src="/images/user.jpg", alt="User").main-content__user-pic
-            p User 1
-            img(src="/images/trash.jpg", alt="Delete").main-content__user-delete
-        li.main-content__user 
-            img(src="/images/user.jpg", alt="User").main-content__user-pic
-            p User 2
-            img(src="/images/trash.jpg", alt="Delete").main-content__user-delete
-        li.main-content__user
-            img(src="/images/user.jpg", alt="User").main-content__user-pic
-            p User 3
-            img(src="/images/trash.jpg", alt="Delete").main-content__user-delete
+    if users.length > 0
+        ul.main-content__users-list
+            each user in users
+                li.main-content__user 
+                    img(src="/images/user.jpg", alt="User").main-content__user-pic
+                    p #{user.username}
+                    img(src="/images/trash.jpg", alt="Delete").main-content__user-delete
