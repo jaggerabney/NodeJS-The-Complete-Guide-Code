@@ -1,0 +1,50 @@
+.main-content__wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 1rem;
+}
+
+.main-content__users-list {
+  list-style: none;
+  padding-inline-start: 0;
+  gap: 1rem;
+}
+
+.main-content__user {
+  display: flex;
+  flex-direction: row;
+  margin: auto;
+  width: 50%;
+  justify-content: space-between;
+  border: 1px solid black;
+  padding: 0.2rem;
+}
+
+.main-content__user:not(:last-child) {
+  margin-bottom: 1rem;
+}
+
+.main-content__user-pic {
+  width: 3rem;
+  height: auto;
+  border: 1px solid #ccc;
+  padding: 0.2rem;
+}
+
+.main-content__user-delete {
+  width: 2rem;
+  padding: 0.7rem;
+  cursor: pointer;
+}
+
+.main-content__user p {
+  display: grid;
+  align-content: center;
+}
+
+@media (max-width: 1024px) {
+  .main-content__user {
+    width: 75%;
+  }
+}
