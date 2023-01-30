@@ -1,7 +1,7 @@
 {
-  "name": "project-1",
+  "name": "course-project",
   "version": "1.0.0",
-  "description": "First project",
+  "description": "Course project",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
