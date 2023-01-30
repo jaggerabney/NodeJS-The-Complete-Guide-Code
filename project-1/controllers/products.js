@@ -15,7 +15,7 @@ exports.postAddProductPage = function (req, res, next) {
   res.redirect("/");
 };
 
-exports.getProducts = function (req, res, next) {
+exports.getShopPage = function (req, res, next) {
   res.render("shop", {
     products: products,
     title: "Shop",
