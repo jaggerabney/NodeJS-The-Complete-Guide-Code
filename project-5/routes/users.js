@@ -10,7 +10,6 @@ router.get("/users", (req, res, next) => {
 
 router.post("/users", (req, res, next) => {
   users.push({ username: req.body.username });
-  console.log(req.body.username);
   res.redirect("/");
 });
 

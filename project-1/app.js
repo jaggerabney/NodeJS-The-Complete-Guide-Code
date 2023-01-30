@@ -7,8 +7,26 @@ const shopRoutes = require("./routes/shop");
 
 const app = express();
 
-app.set("view engine", "ejs");
-app.set("views", "views");
+// pug
+app.set("view engine", "pug");
+app.set("views", "views/pug");
+
+// handlebars
+// const handlebars = require("express-handlebars");
+
+// app.engine(
+//   "handlebars",
+//   handlebars({
+//     layoutsDir: "views/handlebars/layouts",
+//     defaultLayout: "main-layout",
+//   })
+// );
+// app.set("view engine", "handlebars");
+// app.set("views", "views/handlebars");
+
+// ejs
+// app.set("view engine", "ejs");
+// app.set("views", "views/ejs");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
