@@ -2,8 +2,9 @@ const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
 
-const adminRoutes = require("./routes/admin");
-const shopRoutes = require("./routes/shop");
+const adminRoute = require("./routes/admin");
+const shopRoute = require("./routes/shop");
+
 const _404Controller = require("./controllers/404");
 
 const app = express();
@@ -32,8 +33,8 @@ app.set("views", "views/pug");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/admin", adminRoutes);
-app.use(shopRoutes);
+app.use("/admin", adminRoute);
+app.use(shopRoute);
 
 app.use(_404Controller.get404page);
 

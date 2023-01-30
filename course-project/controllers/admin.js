@@ -17,15 +17,12 @@ exports.postAddProductPage = function (req, res, next) {
   res.redirect("/");
 };
 
-exports.getShopPage = function (req, res, next) {
+exports.getProductsPage = function (req, res, next) {
   Product.fetchAll((products) => {
-    res.render("shop/product-list", {
+    res.render("admin/products", {
       products: products ? products : [],
-      title: "Shop",
-      path: "/",
-      hasProducts: products ? products.length > 0 : false,
-      activeShop: true,
-      productCSS: true,
+      title: "Admin Products",
+      path: "/admin/products",
     });
   });
 };
