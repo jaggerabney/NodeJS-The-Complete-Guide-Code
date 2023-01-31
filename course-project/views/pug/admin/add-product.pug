@@ -14,9 +14,9 @@ block content
             input(type="text", name="imageUrl")#imageUrl 
         .form-control 
             label(for="price") Price 
-            input(type="number", name="price")#price 
+            input(type="number", name="price", step="0.01")#price 
         .form-control 
             label(for="description") Description 
-            textarea(name="description", rows=5)#description 
+            textarea(name="description", rows="5")#description 
         
         button.btn(type="submit") Add Product
