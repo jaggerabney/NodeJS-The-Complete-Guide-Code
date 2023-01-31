@@ -16,6 +16,7 @@ block content
                         h2.product__price #{new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(product.price)}
                         p.product__description #{product.description}
                     .card__actions 
+                        a(href=`/products/${product.id}`, class="btn") Details 
                         form(action="/add-to-cart", method="POST") 
                             button.btn Add to Cart
     else 

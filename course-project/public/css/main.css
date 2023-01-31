@@ -12,7 +12,9 @@ body {
 
 main {
   padding: 1rem;
-  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 form {

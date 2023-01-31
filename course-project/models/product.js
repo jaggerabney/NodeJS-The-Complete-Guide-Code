@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const { uuid } = require("uuidv4");
 
 const rootDir = require("../util/path");
 
@@ -9,6 +10,7 @@ module.exports = class Product {
     this.imageUrl = imageUrl;
     this.description = description;
     this.price = price;
+    this.id = uuid();
   }
 
   save() {
