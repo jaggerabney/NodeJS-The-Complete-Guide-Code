@@ -7,4 +7,5 @@ block content
     h2 #{new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(product.price)}
     p #{product.description}
     form(action="/cart", method="POST") 
+        input(type="hidden" name="productId" value=`${product.id}`)
         button.btn(type="submit") Add to Cart

@@ -1,4 +1,3 @@
-const { readProductsFile } = require("../models/product");
 const Product = require("../models/product");
 
 exports.getProductListPage = function (req, res, next) {
@@ -44,6 +43,14 @@ exports.getCartPage = function (req, res, next) {
     title: "Cart",
     path: "/cart",
   });
+};
+
+exports.postCartPage = function (req, res, next) {
+  const productId = req.body.productId;
+
+  console.log(productId);
+
+  res.redirect("/cart");
 };
 
 exports.getOrdersPage = function (req, res, next) {
