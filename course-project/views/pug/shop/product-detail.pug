@@ -1,1 +1,10 @@
 extends ../layouts/main-layout.pug 
+
+block content 
+    h1 #{product.title} 
+    div 
+        img(src=`${product.imageUrl}`, alt=`${product.title}`)
+    h2 #{new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(product.price)}
+    p #{product.description}
+    form(action="/cart", method="POST") 
+        button.btn(type="submit") Add to Cart

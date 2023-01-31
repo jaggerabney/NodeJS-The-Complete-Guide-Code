@@ -1,3 +1,4 @@
+const { readProductsFile } = require("../models/product");
 const Product = require("../models/product");
 
 exports.getProductListPage = function (req, res, next) {
@@ -13,9 +14,19 @@ exports.getProductListPage = function (req, res, next) {
 exports.getProductPage = function (req, res, next) {
   const productId = req.params.productId;
 
-  Product.findById(productId, (product) => console.log(product));
+  Product.findById(productId, (product) => {
+    if (product) {
+      res.render("shop/product-detail", {
+        title: product.title,
+        path: "/products",
+        product: product,
+      });
 
-  res.redirect("/");
+      return;
+    }
+
+    next();
+  });
 };
 
 exports.getIndexPage = function (req, res, next) {
