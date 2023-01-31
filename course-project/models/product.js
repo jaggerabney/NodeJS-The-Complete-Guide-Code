@@ -28,10 +28,21 @@ module.exports = class Product {
   }
 
   static fetchAll(callback) {
+    this.readProductsFile((products) => callback(JSON.parse(products)));
+  }
+
+  static findById(productId, callback) {
+    this.fetchAll((products) => {
+      const product = products.find((element) => productId === element.id);
+      callback(product);
+    });
+  }
+
+  static readProductsFile(callback) {
     const productsFilePath = path.join(rootDir, "data", "products.json");
 
     fs.readFile(productsFilePath, (error, content) => {
-      return error ? callback([]) : callback(JSON.parse(content));
+      callback(content);
     });
   }
 };

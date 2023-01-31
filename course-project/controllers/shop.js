@@ -12,7 +12,9 @@ exports.getProductListPage = function (req, res, next) {
 
 exports.getProductPage = function (req, res, next) {
   const productId = req.params.productId;
-  console.log(productId);
+
+  Product.findById(productId, (product) => console.log(product));
+
   res.redirect("/");
 };
 
