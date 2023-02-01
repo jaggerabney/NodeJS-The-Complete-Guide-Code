@@ -1,12 +1,9 @@
 const Product = require("../models/product");
 
 exports.getAddProductPage = function (req, res, next) {
-  res.render("admin/add-product", {
+  res.render("admin/edit-product", {
     title: "Add Product",
     path: "/admin/add-product",
-    activeAddProduct: true,
-    formsCSS: true,
-    productCSS: true,
   });
 };
 
@@ -17,6 +14,29 @@ exports.postAddProductPage = function (req, res, next) {
   product.save();
 
   res.redirect("/");
+};
+
+exports.getEditProductPage = function (req, res, next) {
+  const isEditing = req.query.edit === "true";
+
+  if (!isEditing) {
+    return res.redirect("/");
+  } else {
+    const productId = req.params.productId;
+
+    Product.findById(productId, (product) => {
+      if (!product) {
+        return res.redirect("/");
+      }
+
+      res.render("admin/edit-product", {
+        title: "Edit Product",
+        path: "/admin/edit-product",
+        editing: isEditing,
+        product: product,
+      });
+    });
+  }
 };
 
 exports.getProductsPage = function (req, res, next) {
