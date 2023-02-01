@@ -5,25 +5,19 @@ const { uuid } = require("uuidv4");
 const rootDir = require("../util/path");
 
 module.exports = class Product {
-  constructor(title, imageUrl, description, price) {
+  constructor(id, title, imageUrl, description, price) {
+    this.id = id;
     this.title = title;
     this.imageUrl = imageUrl;
     this.description = description;
     this.price = Number(price);
-    this.id = uuid();
   }
 
-  save() {
-    const productsFilePath = path.join(rootDir, "data", "products.json");
+  static PRODUCTS_FILE_PATH = path.join(rootDir, "data", "products.json");
 
-    fs.readFile(productsFilePath, (error, content) => {
-      const products = error ? [] : JSON.parse(content);
-
-      products.push(this);
-
-      fs.writeFile(productsFilePath, JSON.stringify(products), (error) => {
-        // do nothing
-      });
+  static readProductsFile(callback) {
+    fs.readFile(this.PRODUCTS_FILE_PATH, (error, content) => {
+      callback(content);
     });
   }
 
@@ -38,11 +32,40 @@ module.exports = class Product {
     });
   }
 
-  static readProductsFile(callback) {
+  save() {
     const productsFilePath = path.join(rootDir, "data", "products.json");
 
-    fs.readFile(productsFilePath, (error, content) => {
-      callback(content);
-    });
+    if (this.id) {
+      Product.fetchAll((products) => {
+        const existingProductIndex = products.findIndex(
+          (product) => product.id === this.id
+        );
+
+        const updatedProductsArray = [...products];
+        updatedProductsArray[existingProductIndex] = this;
+
+        fs.writeFile(
+          productsFilePath,
+          JSON.stringify(updatedProductsArray),
+          (error) => {
+            if (error) {
+              console.log(error);
+            }
+          }
+        );
+      });
+    } else {
+      this.id = uuid();
+
+      Product.fetchAll((products) => {
+        products.push(this);
+
+        fs.writeFile(productsFilePath, JSON.stringify(products), (error) => {
+          if (error) {
+            console.log(error);
+          }
+        });
+      });
+    }
   }
 };
