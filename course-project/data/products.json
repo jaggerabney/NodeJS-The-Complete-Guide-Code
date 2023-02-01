@@ -1,1 +1,9 @@
-[{"id":"1f5868f0-bf08-42f2-8f26-b0a46bd4aac8","title":"Butthole","imageUrl":"butthole.pjeg","description":"bruh","price":694205},{"id":"ee766735-32fa-49b2-9f88-4793f78721d5","title":"weenie","imageUrl":"weenie.net","description":"weenie hut juniors!","price":192843.68}]
+[
+  {
+    "id": "1f5868f0-bf08-42f2-8f26-b0a46bd4aac8",
+    "title": "Butthole",
+    "imageUrl": "butthole.pjeg",
+    "description": "bruh",
+    "price": 694205
+  }
+]

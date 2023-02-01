@@ -32,9 +32,25 @@ module.exports = class Product {
     });
   }
 
-  save() {
-    const productsFilePath = path.join(rootDir, "data", "products.json");
+  static deleteProductById(id) {
+    Product.fetchAll((products) => {
+      const updatedProductsArray = products.filter(
+        (product) => product.id !== id
+      );
 
+      fs.writeFile(
+        this.PRODUCTS_FILE_PATH,
+        JSON.stringify(updatedProductsArray),
+        (error) => {
+          if (error) {
+            console.log(error);
+          }
+        }
+      );
+    });
+  }
+
+  save() {
     if (this.id) {
       Product.fetchAll((products) => {
         const existingProductIndex = products.findIndex(
@@ -45,7 +61,7 @@ module.exports = class Product {
         updatedProductsArray[existingProductIndex] = this;
 
         fs.writeFile(
-          productsFilePath,
+          PRODUCTS_FILE_PATH,
           JSON.stringify(updatedProductsArray),
           (error) => {
             if (error) {
@@ -60,7 +76,7 @@ module.exports = class Product {
       Product.fetchAll((products) => {
         products.push(this);
 
-        fs.writeFile(productsFilePath, JSON.stringify(products), (error) => {
+        fs.writeFile(PRODUCTS_FILE_PATH, JSON.stringify(products), (error) => {
           if (error) {
             console.log(error);
           }

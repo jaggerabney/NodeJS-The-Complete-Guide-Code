@@ -54,6 +54,14 @@ exports.postEditProductPage = function (req, res, body) {
   res.redirect("/admin/products");
 };
 
+exports.postDeleteProductPage = function (req, res, body) {
+  const { productId } = req.body;
+
+  Product.deleteProductById(productId);
+
+  res.redirect("/admin/products");
+};
+
 exports.getProductsPage = function (req, res, next) {
   Product.fetchAll((products) => {
     res.render("admin/products", {
