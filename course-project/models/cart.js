@@ -2,8 +2,6 @@ const fs = require("fs");
 const path = require("path");
 
 const rootDir = require("../util/path");
-const Product = require("../models/product");
-const { Console } = require("console");
 
 const CART_FILE_PATH = path.join(rootDir, "data", "cart.json");
 
