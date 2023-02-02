@@ -9,11 +9,12 @@ exports.getAddProductPage = function (req, res, next) {
 
 exports.postAddProductPage = function (req, res, next) {
   const { title, imageUrl, description, price } = req.body;
-
   const product = new Product(null, title, imageUrl, description, price);
-  product.save();
 
-  res.redirect("/");
+  product
+    .save()
+    .then(() => res.redirect("/"))
+    .catch((error) => console.log(error));
 };
 
 exports.getEditProductPage = function (req, res, next) {
