@@ -13,23 +13,24 @@ exports.getProductListPage = function (req, res, next) {
     .catch((error) => console.log(error));
 };
 
-// TODO: convert after video 146!
 exports.getProductPage = function (req, res, next) {
   const productId = req.params.productId;
 
-  Product.findById(productId, (product) => {
-    if (product) {
-      res.render("shop/product-detail", {
-        title: product.title,
-        path: "/products",
-        product: product,
-      });
+  Product.findById(productId)
+    .then(([product]) => {
+      if (product) {
+        res.render("shop/product-detail", {
+          title: product.title,
+          path: "/products",
+          product: product[0],
+        });
 
-      return;
-    }
+        return;
+      }
 
-    next();
-  });
+      next();
+    })
+    .catch((error) => console.log(error));
 };
 
 exports.getIndexPage = function (req, res, next) {
@@ -71,22 +72,20 @@ exports.getCartPage = function (req, res, next) {
   });
 };
 
-// TODO: convert after video 146!
 exports.postCartPage = function (req, res, next) {
   const productId = req.body.productId;
 
-  Product.findById(productId, (product) => {
-    Cart.add(product);
-  });
+  Product.findById(productId).then(([product]) => {
+    Cart.add(product[0]);
 
-  res.redirect("/cart");
+    res.redirect("/cart");
+  });
 };
 
-// TODO: convert after video 146!
 exports.postCartDeletePage = function (req, res, next) {
   const productId = req.body.productId;
 
-  Product.findById(productId, (product) => {
+  Product.findById(productId).then(() => {
     Cart.deleteItemById(productId);
 
     res.redirect("/cart");
