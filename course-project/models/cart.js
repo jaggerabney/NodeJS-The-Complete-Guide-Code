@@ -62,6 +62,7 @@ module.exports = class Cart {
       if (cartItem.quantity > 1) {
         const updatedCartItem = { ...cartItem };
         updatedCartItem.quantity -= 1;
+
         cart.products[cartItemIndex] = updatedCartItem;
         cart.totalPrice -= updatedCartItem.price;
       } else {
