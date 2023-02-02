@@ -40,9 +40,29 @@ exports.getIndexPage = function (req, res, next) {
 };
 
 exports.getCartPage = function (req, res, next) {
-  res.render("shop/cart", {
-    title: "Cart",
-    path: "/cart",
+  Cart.get((cart) => {
+    Product.fetchAll((products) => {
+      const cartProducts = [];
+
+      for (let product of products) {
+        const cartProductData = cart.products.find(
+          (element) => element.id === product.id
+        );
+
+        if (cartProductData) {
+          cartProducts.push({
+            data: product,
+            quantity: cartProductData.quantity,
+          });
+        }
+      }
+
+      res.render("shop/cart", {
+        title: "Your Cart",
+        path: "/cart",
+        products: cartProducts,
+      });
+    });
   });
 };
 

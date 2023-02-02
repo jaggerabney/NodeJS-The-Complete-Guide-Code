@@ -28,12 +28,25 @@ module.exports = class Cart {
         cart.products[existingProductIndex] = updatedProduct;
       } else {
         updatedProduct = product;
+        updatedProduct.quantity = 1;
         cart.products = [...cart.products, updatedProduct];
       }
 
       cart.totalPrice = Number(cart.totalPrice) + Number(product.price);
 
       fs.writeFile(CART_FILE_PATH, JSON.stringify(cart), (error) => {});
+    });
+  }
+
+  static get(callback) {
+    fs.readFile(CART_FILE_PATH, (error, content) => {
+      const cart = JSON.parse(content);
+
+      if (error) {
+        callback(null);
+      } else {
+        callback(cart);
+      }
     });
   }
 };

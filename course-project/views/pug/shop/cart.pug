@@ -1,1 +1,10 @@
 extends ../layouts/main-layout.pug 
+
+block content 
+    if products.length > 0
+        ul 
+            each product in products 
+                #{console.log(product)}
+                li #{product.data.title} (#{product.quantity})
+    else 
+        h1 No products!
