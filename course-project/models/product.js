@@ -1,10 +1,6 @@
-const fs = require("fs");
-const path = require("path");
 const { uuid } = require("uuidv4");
 
-const rootDir = require("../util/path");
-
-const PRODUCTS_FILE_PATH = path.join(rootDir, "data", "products.json");
+const db = require("../util/database");
 
 module.exports = class Product {
   constructor(id, title, imageUrl, description, price) {
@@ -15,73 +11,15 @@ module.exports = class Product {
     this.price = Number(price);
   }
 
-  static readProductsFile(callback) {
-    fs.readFile(PRODUCTS_FILE_PATH, (error, content) => {
-      callback(content);
-    });
+  static fetchAll() {
+    return db.execute("SELECT * FROM products");
   }
 
-  static fetchAll(callback) {
-    this.readProductsFile((products) => callback(JSON.parse(products)));
+  static findById(productId) {
+    // return db.execute("SELECT * FROM products WHERE ")
   }
 
-  static findById(productId, callback) {
-    this.fetchAll((products) => {
-      const product = products.find((element) => productId === element.id);
-      callback(product);
-    });
-  }
+  static deleteProductById(productId) {}
 
-  static deleteProductById(id) {
-    Product.fetchAll((products) => {
-      const updatedProductsArray = products.filter(
-        (product) => product.id !== id
-      );
-
-      fs.writeFile(
-        PRODUCTS_FILE_PATH,
-        JSON.stringify(updatedProductsArray),
-        (error) => {
-          if (error) {
-            console.log(error);
-          }
-        }
-      );
-    });
-  }
-
-  save() {
-    if (this.id) {
-      Product.fetchAll((products) => {
-        const existingProductIndex = products.findIndex(
-          (product) => product.id === this.id
-        );
-
-        const updatedProductsArray = [...products];
-        updatedProductsArray[existingProductIndex] = this;
-
-        fs.writeFile(
-          PRODUCTS_FILE_PATH,
-          JSON.stringify(updatedProductsArray),
-          (error) => {
-            if (error) {
-              console.log(error);
-            }
-          }
-        );
-      });
-    } else {
-      this.id = uuid();
-
-      Product.fetchAll((products) => {
-        products.push(this);
-
-        fs.writeFile(PRODUCTS_FILE_PATH, JSON.stringify(products), (error) => {
-          if (error) {
-            console.log(error);
-          }
-        });
-      });
-    }
-  }
+  save() {}
 };

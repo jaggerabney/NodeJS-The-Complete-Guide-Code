@@ -32,14 +32,6 @@ app.set("views", "views/pug");
 // app.set("view engine", "ejs");
 // app.set("views", "views/ejs");
 
-db.execute("SELECT * FROM products")
-  .then((result) => console.log(result[0]))
-  .catch((error) => {
-    if (error) {
-      console.log(error);
-    }
-  });
-
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 

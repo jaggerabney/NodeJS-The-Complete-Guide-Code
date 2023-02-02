@@ -2,15 +2,18 @@ const Product = require("../models/product");
 const Cart = require("../models/cart");
 
 exports.getProductListPage = function (req, res, next) {
-  Product.fetchAll((products) => {
-    res.render("shop/product-list", {
-      products: products ? products : [],
-      title: "All Products",
-      path: "/products",
-    });
-  });
+  Product.fetchAll()
+    .then(([rows, fieldData]) => {
+      res.render("shop/product-list", {
+        products: rows ? rows : [],
+        title: "All Products",
+        path: "/products",
+      });
+    })
+    .catch((error) => console.log(error));
 };
 
+// TODO: convert after video 146!
 exports.getProductPage = function (req, res, next) {
   const productId = req.params.productId;
 
@@ -30,23 +33,25 @@ exports.getProductPage = function (req, res, next) {
 };
 
 exports.getIndexPage = function (req, res, next) {
-  Product.fetchAll((products) => {
-    res.render("shop/index", {
-      products: products ? products : [],
-      title: "Shop",
-      path: "/",
-    });
-  });
+  Product.fetchAll()
+    .then(([rows, fieldData]) => {
+      res.render("shop/index", {
+        products: rows ? rows : [],
+        title: "Shop",
+        path: "/",
+      });
+    })
+    .catch((error) => console.log(error));
 };
 
 exports.getCartPage = function (req, res, next) {
   Cart.get((cart) => {
-    Product.fetchAll((products) => {
+    Product.fetchAll().then(([rows, fieldData]) => {
       const cartProducts = [];
 
-      for (let product of products) {
+      for (let product of rows) {
         const cartProductData = cart.products.find(
-          (element) => element.id === product.id
+          (row) => row.id === product.id
         );
 
         if (cartProductData) {
@@ -66,6 +71,7 @@ exports.getCartPage = function (req, res, next) {
   });
 };
 
+// TODO: convert after video 146!
 exports.postCartPage = function (req, res, next) {
   const productId = req.body.productId;
 
@@ -76,6 +82,7 @@ exports.postCartPage = function (req, res, next) {
   res.redirect("/cart");
 };
 
+// TODO: convert after video 146!
 exports.postCartDeletePage = function (req, res, next) {
   const productId = req.body.productId;
 
