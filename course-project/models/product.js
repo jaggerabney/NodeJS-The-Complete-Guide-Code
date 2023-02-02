@@ -4,6 +4,8 @@ const { uuid } = require("uuidv4");
 
 const rootDir = require("../util/path");
 
+const PRODUCTS_FILE_PATH = path.join(rootDir, "data", "products.json");
+
 module.exports = class Product {
   constructor(id, title, imageUrl, description, price) {
     this.id = id;
@@ -13,10 +15,8 @@ module.exports = class Product {
     this.price = Number(price);
   }
 
-  static PRODUCTS_FILE_PATH = path.join(rootDir, "data", "products.json");
-
   static readProductsFile(callback) {
-    fs.readFile(this.PRODUCTS_FILE_PATH, (error, content) => {
+    fs.readFile(PRODUCTS_FILE_PATH, (error, content) => {
       callback(content);
     });
   }
@@ -39,7 +39,7 @@ module.exports = class Product {
       );
 
       fs.writeFile(
-        this.PRODUCTS_FILE_PATH,
+        PRODUCTS_FILE_PATH,
         JSON.stringify(updatedProductsArray),
         (error) => {
           if (error) {

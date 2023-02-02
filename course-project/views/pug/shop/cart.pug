@@ -4,7 +4,10 @@ block content
     if products.length > 0
         ul 
             each product in products 
-                #{console.log(product)}
-                li #{product.data.title} (#{product.quantity})
+                li 
+                    p #{product.data.title} (#{product.quantity})
+                    form(action="/cart-delete-item", method="POST")
+                        input(type="hidden" value=`${product.data.id}` name="productId")
+                        button.btn(type="submit") Delete
     else 
         h1 No products!

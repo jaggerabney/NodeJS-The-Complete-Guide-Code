@@ -2,6 +2,8 @@ const fs = require("fs");
 const path = require("path");
 
 const rootDir = require("../util/path");
+const Product = require("../models/product");
+const { Console } = require("console");
 
 const CART_FILE_PATH = path.join(rootDir, "data", "cart.json");
 
@@ -47,6 +49,34 @@ module.exports = class Cart {
       } else {
         callback(cart);
       }
+    });
+  }
+
+  static deleteItemById(id) {
+    Cart.get((cart) => {
+      const cartItemIndex = cart.products.findIndex(
+        (element) => element.id === id
+      );
+      const cartItem = cart.products[cartItemIndex];
+
+      if (cartItem.quantity > 1) {
+        const updatedCartItem = { ...cartItem };
+        updatedCartItem.quantity -= 1;
+        cart.products[cartItemIndex] = updatedCartItem;
+        cart.totalPrice -= updatedCartItem.price;
+      } else {
+        if (cartItemIndex !== -1) {
+          cart.products.splice(cartItemIndex, 1);
+        }
+
+        cart.totalPrice -= cartItem.price * cartItem.quantity;
+      }
+
+      fs.writeFile(CART_FILE_PATH, JSON.stringify(cart), (error) => {
+        if (error) {
+          console.log(error);
+        }
+      });
     });
   }
 };
