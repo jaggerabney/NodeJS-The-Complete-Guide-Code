@@ -2,10 +2,10 @@ const Product = require("../models/product");
 const Cart = require("../models/cart");
 
 exports.getProductListPage = function (req, res, next) {
-  Product.fetchAll()
-    .then(([rows, fieldData]) => {
+  Product.findAll()
+    .then((products) => {
       res.render("shop/product-list", {
-        products: rows ? rows : [],
+        products: products ? products : [],
         title: "All Products",
         path: "/products",
       });
@@ -16,13 +16,13 @@ exports.getProductListPage = function (req, res, next) {
 exports.getProductPage = function (req, res, next) {
   const productId = req.params.productId;
 
-  Product.findById(productId)
-    .then(([product]) => {
+  Product.findByPk(productId)
+    .then((product) => {
       if (product) {
         res.render("shop/product-detail", {
           title: product.title,
           path: "/products",
-          product: product[0],
+          product: product,
         });
 
         return;
@@ -34,10 +34,10 @@ exports.getProductPage = function (req, res, next) {
 };
 
 exports.getIndexPage = function (req, res, next) {
-  Product.fetchAll()
-    .then(([rows, fieldData]) => {
+  Product.findAll()
+    .then((products) => {
       res.render("shop/index", {
-        products: rows ? rows : [],
+        products: products ? products : [],
         title: "Shop",
         path: "/",
       });
@@ -47,10 +47,10 @@ exports.getIndexPage = function (req, res, next) {
 
 exports.getCartPage = function (req, res, next) {
   Cart.get((cart) => {
-    Product.fetchAll().then(([rows, fieldData]) => {
+    Product.findAll().then((products) => {
       const cartProducts = [];
 
-      for (let product of rows) {
+      for (let product of products) {
         const cartProductData = cart.products.find(
           (row) => row.id === product.id
         );
@@ -75,8 +75,8 @@ exports.getCartPage = function (req, res, next) {
 exports.postCartPage = function (req, res, next) {
   const productId = req.body.productId;
 
-  Product.findById(productId).then(([product]) => {
-    Cart.add(product[0]);
+  Product.findByPk(productId).then((product) => {
+    Cart.add(product);
 
     res.redirect("/cart");
   });

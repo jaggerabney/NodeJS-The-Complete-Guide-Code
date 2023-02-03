@@ -44,8 +44,6 @@ app.use(_404Controller.get404page);
 sequelize
   .sync()
   .then((result) => {
-    console.log(result);
-
     app.listen(3000);
   })
   .catch((error) => console.log(error));
