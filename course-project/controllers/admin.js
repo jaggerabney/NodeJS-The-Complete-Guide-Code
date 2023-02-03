@@ -70,9 +70,12 @@ exports.postEditProductPage = function (req, res, body) {
 exports.postDeleteProductPage = function (req, res, body) {
   const { productId } = req.body;
 
-  // Product.deleteProductById(productId);
-
-  res.redirect("/admin/products");
+  Product.findByPk(productId)
+    .then((product) => {
+      return product.destroy();
+    })
+    .then(() => res.redirect("/admin/products"))
+    .catch((error) => console.log(error));
 };
 
 exports.getProductsPage = function (req, res, next) {
