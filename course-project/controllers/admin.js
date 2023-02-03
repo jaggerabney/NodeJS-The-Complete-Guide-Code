@@ -20,7 +20,9 @@ exports.postAddProductPage = function (req, res, next) {
     price,
     id,
   })
-    .then(() => {})
+    .then(() => {
+      res.redirect("/");
+    })
     .catch((error) => console.log(error));
 };
 
@@ -49,15 +51,18 @@ exports.getEditProductPage = function (req, res, next) {
 
 exports.postEditProductPage = function (req, res, body) {
   const { title, imageUrl, price, description, productId } = req.body;
-  const updatedProduct = Product.create({
-    id: productId,
-    title,
-    imageUrl,
-    description,
-    price,
-  });
 
-  // updatedProduct.save();
+  Product.findByPk(productId)
+    .then((product) => {
+      product.title = title;
+      product.imageUrl = imageUrl;
+      product.price = price;
+      product.description = description;
+
+      return product.save();
+    })
+    .then(() => res.redirect("/"))
+    .catch((error) => console.log(error));
 
   res.redirect("/admin/products");
 };
@@ -65,7 +70,7 @@ exports.postEditProductPage = function (req, res, body) {
 exports.postDeleteProductPage = function (req, res, body) {
   const { productId } = req.body;
 
-  Product.deleteProductById(productId);
+  // Product.deleteProductById(productId);
 
   res.redirect("/admin/products");
 };
