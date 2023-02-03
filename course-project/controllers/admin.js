@@ -1,3 +1,5 @@
+const { v4 } = require("uuid");
+
 const Product = require("../models/product");
 
 exports.getAddProductPage = function (req, res, next) {
@@ -9,11 +11,16 @@ exports.getAddProductPage = function (req, res, next) {
 
 exports.postAddProductPage = function (req, res, next) {
   const { title, imageUrl, description, price } = req.body;
-  const product = new Product(null, title, imageUrl, description, price);
+  const id = v4();
 
-  product
-    .save()
-    .then(() => res.redirect("/"))
+  Product.create({
+    title,
+    imageUrl,
+    description,
+    price,
+    id,
+  })
+    .then((result) => console.log(result))
     .catch((error) => console.log(error));
 };
 

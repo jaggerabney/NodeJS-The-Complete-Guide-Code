@@ -8,6 +8,7 @@ const shopRoute = require("./routes/shop");
 const _404Controller = require("./controllers/404");
 
 const db = require("./util/database");
+const sequelize = require("./util/database");
 
 const app = express();
 
@@ -40,4 +41,11 @@ app.use(shopRoute);
 
 app.use(_404Controller.get404page);
 
-app.listen(3000);
+sequelize
+  .sync()
+  .then((result) => {
+    console.log(result);
+
+    app.listen(3000);
+  })
+  .catch((error) => console.log(error));
