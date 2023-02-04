@@ -9,5 +9,7 @@ block content
                     form(action="/cart-delete-item", method="POST")
                         input(type="hidden" value=`${product.id}` name="productId")
                         button.btn(type="submit") Delete
+        form(action="/create-order", method="POST")
+            button.btn(type="submit") Order Now! 
     else 
         h1 No products in cart!

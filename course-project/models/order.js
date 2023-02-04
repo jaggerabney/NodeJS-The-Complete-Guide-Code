@@ -11,6 +11,7 @@ const Order = sequelize.define("order", {
   },
   quantity: {
     type: Sequelize.INTEGER,
+    defaultValue: 1,
     allowNull: false,
   },
 });
