@@ -124,11 +124,18 @@ exports.postCartPage = function (req, res, next) {
 exports.postCartDeletePage = function (req, res, next) {
   const productId = req.body.productId;
 
-  Product.findById(productId).then(() => {
-    Cart.deleteItemById(productId);
+  req.user
+    .getCart()
+    .then((cart) => {
+      return cart.getProducts({ where: { id: productId } });
+    })
+    .then((products) => {
+      const product = products[0];
 
-    res.redirect("/cart");
-  });
+      return product.cartItem.destroy();
+    })
+    .then(() => res.redirect("/cart"))
+    .catch((error) => console.log(error));
 };
 
 exports.getOrdersPage = function (req, res, next) {
