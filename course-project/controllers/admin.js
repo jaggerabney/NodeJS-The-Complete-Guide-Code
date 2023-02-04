@@ -13,13 +13,15 @@ exports.postAddProductPage = function (req, res, next) {
   const { title, imageUrl, description, price } = req.body;
   const id = v4();
 
-  Product.create({
-    title,
-    imageUrl,
-    description,
-    price,
-    id,
-  })
+  req.user
+    .createProduct({
+      title,
+      imageUrl,
+      description,
+      price,
+      id,
+      userId: req.user.id,
+    })
     .then(() => {
       res.redirect("/");
     })
@@ -34,7 +36,9 @@ exports.getEditProductPage = function (req, res, next) {
   } else {
     const productId = req.params.productId;
 
-    Product.findByPk(productId).then((product) => {
+    req.user.getProducts({ where: { id: productId } }).then((products) => {
+      const product = products[0];
+
       if (!product) {
         return res.redirect("/");
       }
@@ -79,7 +83,7 @@ exports.postDeleteProductPage = function (req, res, body) {
 };
 
 exports.getProductsPage = function (req, res, next) {
-  Product.findAll().then((products) => {
+  req.user.getProducts().then((products) => {
     res.render("admin/products", {
       products: products ? products : [],
       title: "Admin Products",

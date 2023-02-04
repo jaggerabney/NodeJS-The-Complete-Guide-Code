@@ -51,14 +51,10 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use((req, res, next) => {
-  User.findAll({
-    where: {
-      name: DUMMY_USER.name,
-      email: DUMMY_USER.email,
-    },
-  })
+  User.findByPk(DUMMY_USER.id)
     .then((user) => {
       req.user = user;
+      console.log(req.user);
       next();
     })
     .catch((error) => console.log(error));
@@ -71,11 +67,12 @@ app.use(shopRoute);
 app.use(_404Controller.get404page);
 
 // SQL Relations
-User.hasMany(Product, { foreignKey: "id" });
+Product.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
+User.hasMany(Product);
 
 // Pulls info from db and launches server
 sequelize
-  .sync()
+  .sync({ force: true })
   .then(() => {
     return User.findAll({
       where: {
