@@ -112,9 +112,15 @@ exports.postCartDeletePage = function (req, res, next) {
 };
 
 exports.postOrderPage = function (req, res, next) {
+  let fetchedCart;
+
   req.user
     .getCart()
-    .then((cart) => cart.getProducts())
+    .then((cart) => {
+      fetchedCart = cart;
+
+      return cart.getProducts();
+    })
     .then((products) => {
       req.user.createOrder().then((order) => {
         return order.addProducts(
@@ -126,15 +132,22 @@ exports.postOrderPage = function (req, res, next) {
         );
       });
     })
+    .then(() => fetchedCart.setProducts(null))
     .then(() => res.redirect("/orders"))
     .catch((error) => console.log(error));
 };
 
 exports.getOrdersPage = function (req, res, next) {
-  res.render("shop/orders", {
-    title: "Orders",
-    path: "/orders",
-  });
+  req.user
+    .getOrders({ include: ["products"] })
+    .then((orders) => {
+      res.render("shop/orders", {
+        title: "Orders",
+        path: "/orders",
+        orders: orders,
+      });
+    })
+    .catch((error) => console.log(error));
 };
 
 exports.getCheckoutPage = function (req, res, next) {
