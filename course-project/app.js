@@ -56,7 +56,7 @@ app.use((req, res, next) => {
   User.findByPk(DUMMY_USER.id)
     .then((user) => {
       req.user = user;
-      console.log(req.user);
+
       next();
     })
     .catch((error) => console.log(error));
@@ -72,7 +72,7 @@ app.use(_404Controller.get404page);
 Product.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
 User.hasMany(Product);
 User.hasOne(Cart);
-Cart.belongsTo(User, { foreignKey: "id" });
+Cart.belongsTo(User);
 Cart.belongsToMany(Product, { through: CartItem });
 Product.belongsToMany(Cart, { through: CartItem });
 
@@ -94,5 +94,16 @@ sequelize
 
     return users[0];
   })
-  .then(() => app.listen(3000))
+  .then((user) => {
+    user.getCart().then((cart) => {
+      if (!cart) {
+        return user.createCart();
+      } else {
+        return user.getCart();
+      }
+    });
+  })
+  .then((cart) => {
+    app.listen(3000);
+  })
   .catch((error) => console.log(error));

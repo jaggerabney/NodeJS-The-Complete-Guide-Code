@@ -5,9 +5,9 @@ block content
         ul 
             each product in products 
                 li 
-                    p #{product.data.title} (#{product.quantity})
+                    p #{product.title} (#{product.cartItem.quantity})
                     form(action="/cart-delete-item", method="POST")
-                        input(type="hidden" value=`${product.data.id}` name="productId")
+                        input(type="hidden" value=`${product.id}` name="productId")
                         button.btn(type="submit") Delete
     else 
         h1 No products in cart!
