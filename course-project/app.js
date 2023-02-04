@@ -1,16 +1,29 @@
+// Imports
 const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
 
 const adminRoute = require("./routes/admin");
 const shopRoute = require("./routes/shop");
-
+const sequelize = require("./util/database");
 const _404Controller = require("./controllers/404");
 
-const db = require("./util/database");
-const sequelize = require("./util/database");
+const User = require("./models/user");
+const Product = require("./models/product");
 
+// Dummy user
+
+const DUMMY_USER = {
+  id: "86756630-f018-4d96-9cf7-616f23790b4a",
+  name: "Jagger",
+  email: "test@test.com",
+};
+
+// Creates app
 const app = express();
+
+// Configures template engine
+// I included the code for all three template engines because why not
 
 // pug
 app.set("view engine", "pug");
@@ -33,17 +46,50 @@ app.set("views", "views/pug");
 // app.set("view engine", "ejs");
 // app.set("views", "views/ejs");
 
+// Adds body-parser to app and exposes "public" folder
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
+app.use((req, res, next) => {
+  User.findAll({
+    where: {
+      name: DUMMY_USER.name,
+      email: DUMMY_USER.email,
+    },
+  })
+    .then((user) => {
+      req.user = user;
+      next();
+    })
+    .catch((error) => console.log(error));
+});
+
+// Adds routes and 404 page
 app.use("/admin", adminRoute);
 app.use(shopRoute);
 
 app.use(_404Controller.get404page);
 
+// SQL Relations
+User.hasMany(Product, { foreignKey: "id" });
+
+// Pulls info from db and launches server
 sequelize
   .sync()
-  .then((result) => {
-    app.listen(3000);
+  .then(() => {
+    return User.findAll({
+      where: {
+        name: DUMMY_USER.name,
+        email: DUMMY_USER.email,
+      },
+    });
   })
+  .then((users) => {
+    if (users.length === 0) {
+      return User.create(DUMMY_USER);
+    }
+
+    return users[0];
+  })
+  .then(() => app.listen(3000))
   .catch((error) => console.log(error));

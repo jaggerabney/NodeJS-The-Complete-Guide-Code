@@ -4,11 +4,12 @@ const sequelize = require("../util/database");
 
 const User = sequelize.define("user", {
   id: {
-    type: Sequelize.STRING,
+    type: Sequelize.UUID,
+    defaultValue: Sequelize.UUIDV4,
     allowNull: false,
-    pirmaryKey: true,
+    primaryKey: true,
   },
-  username: {
+  name: {
     type: Sequelize.STRING,
     allowNull: false,
   },
