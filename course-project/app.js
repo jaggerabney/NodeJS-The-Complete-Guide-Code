@@ -10,6 +10,8 @@ const _404Controller = require("./controllers/404");
 
 const User = require("./models/user");
 const Product = require("./models/product");
+const Cart = require("./models/cart");
+const CartItem = require("./models/cart-item");
 
 // Dummy user
 
@@ -69,10 +71,14 @@ app.use(_404Controller.get404page);
 // SQL Relations
 Product.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
 User.hasMany(Product);
+User.hasOne(Cart);
+Cart.belongsTo(User, { foreignKey: "id" });
+Cart.belongsToMany(Product, { through: CartItem });
+Product.belongsToMany(Cart, { through: CartItem });
 
 // Pulls info from db and launches server
 sequelize
-  .sync({ force: true })
+  .sync()
   .then(() => {
     return User.findAll({
       where: {
