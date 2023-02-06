@@ -2,26 +2,12 @@
 const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
+const sequelize = require("sequelize");
 
-const adminRoute = require("./routes/admin");
-const shopRoute = require("./routes/shop");
-const sequelize = require("./util/database");
-const _404Controller = require("./controllers/404");
-
-const User = require("./models/user");
-const Product = require("./models/product");
-const Cart = require("./models/cart");
-const CartItem = require("./models/cart-item");
-const Order = require("./models/order");
-const OrderItem = require("./models/order-item");
-
-// Dummy user
-
-const DUMMY_USER = {
-  id: "86756630-f018-4d96-9cf7-616f23790b4a",
-  name: "Jagger",
-  email: "test@test.com",
-};
+// const adminRoute = require("./routes/admin");
+// const shopRoute = require("./routes/shop");
+// const _404Controller = require("./controllers/404");
+const mongoConnect = require("./util/database");
 
 // Creates app
 const app = express();
@@ -54,61 +40,25 @@ app.set("views", "views/pug");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use((req, res, next) => {
-  User.findByPk(DUMMY_USER.id)
-    .then((user) => {
-      req.user = user;
+// app.use((req, res, next) => {
+//   User.findByPk(DUMMY_USER.id)
+//     .then((user) => {
+//       req.user = user;
 
-      next();
-    })
-    .catch((error) => console.log(error));
-});
+//       next();
+//     })
+//     .catch((error) => console.log(error));
+// });
 
 // Adds routes and 404 page
-app.use("/admin", adminRoute);
-app.use(shopRoute);
+// app.use("/admin", adminRoute);
+// app.use(shopRoute);
 
-app.use(_404Controller.get404page);
+// app.use(_404Controller.get404page);
 
-// SQL Relations
-Product.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
-User.hasMany(Product);
-User.hasOne(Cart);
-Cart.belongsTo(User);
-Cart.belongsToMany(Product, { through: CartItem });
-Product.belongsToMany(Cart, { through: CartItem });
-Order.belongsTo(User);
-User.hasMany(Order);
-Order.belongsToMany(Product, { through: OrderItem });
+// Connect to DB
+mongoConnect((client) => {
+  console.log(client);
 
-// Pulls info from db and launches server
-sequelize
-  .sync()
-  .then(() => {
-    return User.findAll({
-      where: {
-        name: DUMMY_USER.name,
-        email: DUMMY_USER.email,
-      },
-    });
-  })
-  .then((users) => {
-    if (users.length === 0) {
-      return User.create(DUMMY_USER);
-    }
-
-    return users[0];
-  })
-  .then((user) => {
-    user.getCart().then((cart) => {
-      if (!cart) {
-        return user.createCart();
-      } else {
-        return user.getCart();
-      }
-    });
-  })
-  .then((cart) => {
-    app.listen(3000);
-  })
-  .catch((error) => console.log(error));
+  app.listen(3000);
+});
