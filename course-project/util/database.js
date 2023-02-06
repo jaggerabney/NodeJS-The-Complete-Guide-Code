@@ -2,14 +2,31 @@ const mongodb = require("mongodb");
 const MongoClient = mongodb.MongoClient;
 require("dotenv").config();
 
+let db;
+
 function mongoConnect(callback) {
   MongoClient.connect(process.env.DB_CONNECTION_STRING)
-    .then((result) => {
+    .then((client) => {
       console.log("Connected!");
 
-      callback(result);
+      db = client.db();
+
+      callback();
     })
-    .catch((error) => console.log(error));
+    .catch((error) => {
+      console.log(error);
+
+      throw error;
+    });
 }
 
-module.exports = mongoConnect;
+function getDb() {
+  if (db) {
+    return db;
+  } else {
+    throw "No database found!";
+  }
+}
+
+exports.mongoConnect = mongoConnect;
+exports.getDb = getDb;

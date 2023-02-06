@@ -2,12 +2,11 @@
 const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
-const sequelize = require("sequelize");
 
-// const adminRoute = require("./routes/admin");
+const adminRoute = require("./routes/admin");
 // const shopRoute = require("./routes/shop");
 // const _404Controller = require("./controllers/404");
-const mongoConnect = require("./util/database");
+const mongoConnect = require("./util/database").mongoConnect;
 
 // Creates app
 const app = express();
@@ -51,14 +50,12 @@ app.use(express.static(path.join(__dirname, "public")));
 // });
 
 // Adds routes and 404 page
-// app.use("/admin", adminRoute);
+app.use("/admin", adminRoute);
 // app.use(shopRoute);
 
 // app.use(_404Controller.get404page);
 
 // Connect to DB
-mongoConnect((client) => {
-  console.log(client);
-
+mongoConnect(() => {
   app.listen(3000);
 });
