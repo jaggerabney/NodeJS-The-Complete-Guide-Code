@@ -40,13 +40,7 @@ exports.getEditProductPage = function (req, res, next) {
 
 exports.postEditProductPage = function (req, res, body) {
   const { title, imageUrl, price, description, productId } = req.body;
-  const product = new Product(
-    title,
-    imageUrl,
-    description,
-    price,
-    new ObjectId(productId)
-  );
+  const product = new Product(title, imageUrl, description, price, productId);
 
   product
     .save()
@@ -59,10 +53,7 @@ exports.postEditProductPage = function (req, res, body) {
 exports.postDeleteProductPage = function (req, res, body) {
   const { productId } = req.body;
 
-  Product.findByPk(productId)
-    .then((product) => {
-      return product.destroy();
-    })
+  Product.deleteById(productId)
     .then(() => res.redirect("/admin/products"))
     .catch((error) => console.log(error));
 };

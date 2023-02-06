@@ -2,12 +2,12 @@ const mongodb = require("mongodb");
 const db = require("../util/database").getDb;
 
 class Product {
-  constructor(title, imageUrl, description, price, _id) {
+  constructor(title, imageUrl, description, price, id) {
     this.title = title;
     this.imageUrl = imageUrl;
     this.description = description;
     this.price = price;
-    this._id = _id;
+    this._id = id ? new mongodb.ObjectId(id) : null;
   }
 
   save() {
@@ -16,7 +16,7 @@ class Product {
     if (this._id) {
       dbOperation = db()
         .collection("products")
-        .updateOne({ _id: new mongodb.ObjectId(this._id) }, { $set: this });
+        .updateOne({ _id: this._id }, { $set: this });
     } else {
       dbOperation = db().collection("products").insertOne(this);
     }
@@ -44,6 +44,12 @@ class Product {
         return product;
       })
       .catch((error) => console.log(error));
+  }
+
+  static deleteById(productId) {
+    return db()
+      .collection("products")
+      .deleteOne({ _id: new mongodb.ObjectId(productId) });
   }
 }
 
