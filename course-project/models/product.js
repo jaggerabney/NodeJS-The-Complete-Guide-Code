@@ -1,4 +1,4 @@
-const { v4 } = require("uuidv4");
+const { v4 } = require("uuid");
 
 const db = require("../util/database").getDb;
 
@@ -10,30 +10,10 @@ class Product {
     this.price = price;
     this.id = v4();
   }
-}
 
-// const Product = {
-//   id: {
-//     type: Sequelize.STRING,
-//     allowNull: false,
-//     primaryKey: true,
-//   },
-//   title: {
-//     type: Sequelize.STRING,
-//     allowNull: false,
-//   },
-//   price: {
-//     type: Sequelize.DOUBLE,
-//     allowNull: false,
-//   },
-//   imageUrl: {
-//     type: Sequelize.STRING,
-//     allowNull: false,
-//   },
-//   description: {
-//     type: Sequelize.STRING,
-//     allowNull: false,
-//   },
-// };
+  save() {
+    return db().collection("products").insertOne(this);
+  }
+}
 
 module.exports = Product;
