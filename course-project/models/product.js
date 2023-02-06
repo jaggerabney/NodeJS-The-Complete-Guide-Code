@@ -14,6 +14,16 @@ class Product {
   save() {
     return db().collection("products").insertOne(this);
   }
+
+  static fetchAll() {
+    return db()
+      .collection("products")
+      .find()
+      .toArray()
+      .then((products) => {
+        return products;
+      });
+  }
 }
 
 module.exports = Product;

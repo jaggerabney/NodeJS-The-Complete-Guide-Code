@@ -3,9 +3,9 @@ const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
 
-const adminRoute = require("./routes/admin");
-// const shopRoute = require("./routes/shop");
-// const _404Controller = require("./controllers/404");
+const adminRoutes = require("./routes/admin");
+const shopRoutes = require("./routes/shop");
+const _404Controller = require("./controllers/404");
 const mongoConnect = require("./util/database").mongoConnect;
 
 // Creates app
@@ -50,10 +50,9 @@ app.use(express.static(path.join(__dirname, "public")));
 // });
 
 // Adds routes and 404 page
-app.use("/admin", adminRoute);
-// app.use(shopRoute);
-
-// app.use(_404Controller.get404page);
+app.use("/admin", adminRoutes);
+app.use(shopRoutes);
+app.use(_404Controller.get404page);
 
 // Connect to DB
 mongoConnect(() => {
