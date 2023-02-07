@@ -63,8 +63,6 @@ class User {
   getCart() {
     const productIds = this.cart.items.map((product) => product.productId);
 
-    console.log(productIds);
-
     return db()
       .collection("products")
       .find({ _id: { $in: productIds } })
