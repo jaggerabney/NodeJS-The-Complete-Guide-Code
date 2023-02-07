@@ -1,4 +1,4 @@
-const { ObjectId } = require("mongodb");
+const { ObjectId, Double } = require("mongodb");
 
 const db = require("../util/database").getDb;
 
@@ -41,6 +41,29 @@ class User {
         { _id: new ObjectId(this._id) },
         { $set: { cart: updatedCart } }
       );
+  }
+
+  getCart() {
+    const productIds = this.cart.items.map((product) => product.productId);
+
+    console.log(productIds);
+
+    return db()
+      .collection("products")
+      .find({ _id: { $in: productIds } })
+      .toArray()
+      .then((products) => {
+        console.log(products);
+
+        return products.map((product) => {
+          return {
+            ...product,
+            quantity: this.cart.items.find(
+              (item) => item.productId.toString() === product._id.toString()
+            ).quantity,
+          };
+        });
+      });
   }
 
   static findById(userId) {
