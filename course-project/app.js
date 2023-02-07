@@ -6,7 +6,14 @@ const bodyParser = require("body-parser");
 const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
 const _404Controller = require("./controllers/404");
+const User = require("./models/user");
 const mongoConnect = require("./util/database").mongoConnect;
+
+const DUMMY_USER = {
+  id: "63e1993294866e1011e7496f",
+  name: "Jagger",
+  email: "test@test.com",
+};
 
 // Creates app
 const app = express();
@@ -39,15 +46,15 @@ app.set("views", "views/pug");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
-// app.use((req, res, next) => {
-//   User.findByPk(DUMMY_USER.id)
-//     .then((user) => {
-//       req.user = user;
+app.use((req, res, next) => {
+  User.findById(DUMMY_USER.id)
+    .then((user) => {
+      req.user = user;
 
-//       next();
-//     })
-//     .catch((error) => console.log(error));
-// });
+      next();
+    })
+    .catch((error) => console.log(error));
+});
 
 // Adds routes and 404 page
 app.use("/admin", adminRoutes);
