@@ -84,7 +84,7 @@ exports.postOrderPage = function (req, res, next) {
 
 exports.getOrdersPage = function (req, res, next) {
   req.user
-    .getOrders({ include: ["products"] })
+    .getOrders()
     .then((orders) => {
       res.render("shop/orders", {
         title: "Orders",
