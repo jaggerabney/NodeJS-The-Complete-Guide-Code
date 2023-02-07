@@ -10,7 +10,14 @@ exports.getAddProductPage = function (req, res, next) {
 
 exports.postAddProductPage = function (req, res, next) {
   const { title, imageUrl, description, price } = req.body;
-  const product = new Product(title, imageUrl, description, price);
+  const product = new Product(
+    title,
+    imageUrl,
+    description,
+    price,
+    null,
+    req.user._id
+  );
 
   product.save().then(() => res.redirect("/admin/products"));
 };
