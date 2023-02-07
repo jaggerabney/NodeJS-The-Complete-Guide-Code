@@ -63,8 +63,6 @@ exports.getCartPage = function (req, res, next) {
 exports.postCartPage = function (req, res, next) {
   const productId = req.body.productId;
 
-  console.log(productId);
-
   Product.findById(productId).then((product) => {
     return req.user.addToCart(product).then(() => res.redirect("/cart"));
   });
