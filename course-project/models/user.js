@@ -43,6 +43,23 @@ class User {
       );
   }
 
+  deleteFromCart(productId) {
+    const updatedCartItems = this.cart.items.filter(
+      (item) => item.productId.toString() !== productId.toString()
+    );
+
+    const updatedCart = {
+      items: updatedCartItems,
+    };
+
+    return db()
+      .collection("users")
+      .updateOne(
+        { _id: new ObjectId(this._id) },
+        { $set: { cart: updatedCart } }
+      );
+  }
+
   getCart() {
     const productIds = this.cart.items.map((product) => product.productId);
 

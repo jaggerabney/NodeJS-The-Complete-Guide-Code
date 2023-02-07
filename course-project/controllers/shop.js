@@ -70,13 +70,7 @@ exports.postCartDeletePage = function (req, res, next) {
   const productId = req.body.productId;
 
   req.user
-    .getCart()
-    .then((cart) => cart.getProducts({ where: { id: productId } }))
-    .then((products) => {
-      const product = products[0];
-
-      return product.cartItem.destroy();
-    })
+    .deleteFromCart(productId)
     .then(() => res.redirect("/cart"))
     .catch((error) => console.log(error));
 };
