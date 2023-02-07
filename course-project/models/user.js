@@ -15,18 +15,31 @@ class User {
   }
 
   addToCart(product) {
-    const cartProduct = this.cart.items.findIndex(
-      (element) => element._id === product._id
-    );
+    let updatedCartItems, cartProductIndex;
 
-    if (cartProduct) {
+    try {
+      cartProductIndex = this.cart.items.findIndex(
+        (element) => element._id.toString() === product._id.toString()
+      );
+      updatedCartItems = [...this.cart.items];
+    } catch {
+      cartProductIndex = -1;
+      updatedCartItems = [];
+    }
+
+    if (cartProductIndex >= 0) {
       // to be added
     } else {
-      const updatedCart = { items: [{ ...product, quantity: 1 }] };
+      const updatedCart = {
+        items: [{ productId: new ObjectId(product._id), quantity: 1 }],
+      };
 
       return db()
         .collection("users")
-        .updateOne({ _id: new ObjectId(_id) }, { $set: { cart: updatedCart } });
+        .updateOne(
+          { _id: new ObjectId(this._id) },
+          { $set: { cart: updatedCart } }
+        );
     }
   }
 

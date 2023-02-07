@@ -10,9 +10,12 @@ const User = require("./models/user");
 const mongoConnect = require("./util/database").mongoConnect;
 
 const DUMMY_USER = {
-  id: "63e1993294866e1011e7496f",
+  _id: "63e1993294866e1011e7496f",
   name: "Jagger",
   email: "test@test.com",
+  cart: {
+    items: [],
+  },
 };
 
 // Creates app
@@ -49,7 +52,12 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use((req, res, next) => {
   User.findById(DUMMY_USER.id)
     .then((user) => {
-      req.user = user;
+      req.user = new User(
+        DUMMY_USER.name,
+        DUMMY_USER.email,
+        DUMMY_USER.cart,
+        DUMMY_USER._id
+      );
 
       next();
     })

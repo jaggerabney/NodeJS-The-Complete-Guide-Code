@@ -39,8 +39,7 @@ class Product {
   static findById(productId) {
     return db()
       .collection("products")
-      .find({ _id: new mongodb.ObjectId(productId) })
-      .next()
+      .findOne({ _id: new mongodb.ObjectId(productId) })
       .then((product) => {
         return product;
       })

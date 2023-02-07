@@ -62,38 +62,45 @@ exports.getCartPage = function (req, res, next) {
 
 exports.postCartPage = function (req, res, next) {
   const productId = req.body.productId;
-  let newQuantity = 1;
-  let fetchedCart;
 
-  req.user
-    .getCart()
-    .then((cart) => {
-      fetchedCart = cart;
+  console.log(productId);
 
-      return cart.getProducts({ where: { id: productId } });
-    })
-    .then((products) => {
-      let product;
+  Product.findById(productId).then((product) => {
+    return req.user.addToCart(product).then(() => res.redirect("/cart"));
+  });
 
-      if (products) {
-        product = products[0];
-      }
+  // let newQuantity = 1;
+  // let fetchedCart;
 
-      if (product) {
-        newQuantity = product.cartItem.quantity + 1;
+  // req.user
+  //   .getCart()
+  //   .then((cart) => {
+  //     fetchedCart = cart;
 
-        return product;
-      }
+  //     return cart.getProducts({ where: { id: productId } });
+  //   })
+  //   .then((products) => {
+  //     let product;
 
-      return Product.findByPk(productId);
-    })
-    .then((product) => {
-      return fetchedCart.addProduct(product, {
-        through: { quantity: newQuantity },
-      });
-    })
-    .then(() => res.redirect("/cart"))
-    .catch((error) => console.log(error));
+  //     if (products) {
+  //       product = products[0];
+  //     }
+
+  //     if (product) {
+  //       newQuantity = product.cartItem.quantity + 1;
+
+  //       return product;
+  //     }
+
+  //     return Product.findByPk(productId);
+  //   })
+  //   .then((product) => {
+  //     return fetchedCart.addProduct(product, {
+  //       through: { quantity: newQuantity },
+  //     });
+  //   })
+  //   .then(() => res.redirect("/cart"))
+  //   .catch((error) => console.log(error));
 };
 
 exports.postCartDeletePage = function (req, res, next) {
