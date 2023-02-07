@@ -76,27 +76,8 @@ exports.postCartDeletePage = function (req, res, next) {
 };
 
 exports.postOrderPage = function (req, res, next) {
-  let fetchedCart;
-
   req.user
-    .getCart()
-    .then((cart) => {
-      fetchedCart = cart;
-
-      return cart.getProducts();
-    })
-    .then((products) => {
-      req.user.createOrder().then((order) => {
-        return order.addProducts(
-          products.map((product) => {
-            product.orderItem = { quantity: product.cartItem.quantity };
-
-            return product;
-          })
-        );
-      });
-    })
-    .then(() => fetchedCart.setProducts(null))
+    .order()
     .then(() => res.redirect("/orders"))
     .catch((error) => console.log(error));
 };
