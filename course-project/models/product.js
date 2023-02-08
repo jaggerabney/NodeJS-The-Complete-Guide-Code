@@ -1,3 +1,28 @@
+const mongoose = require("mongoose");
+
+const Schema = mongoose.Schema;
+
+const productSchema = new Schema({
+  title: {
+    type: String,
+    required: true,
+  },
+  price: {
+    type: Number,
+    required: true,
+  },
+  description: {
+    type: String,
+    required: true,
+  },
+  imageUrl: {
+    type: String,
+    required: true,
+  },
+});
+
+module.exports = mongoose.model("Product", productSchema);
+
 // const mongodb = require("mongodb");
 // const db = require("../util/database").getDb;
 
@@ -20,7 +45,15 @@
 //         .updateOne({ _id: this._id }, { $set: this });
 //     } else {
 //       dbOperation = db().collection("products").insertOne(this);
-//     }
+//     }app.use((req, res, next) => {
+//   User.findById(DUMMY_USER._id)
+//     .then((user) => {
+//       req.user = new User(user.name, user.email, user.cart, user._id);
+
+//       next();
+//     })
+//     .catch((error) => console.log(error));
+// });
 
 //     return dbOperation;
 //   }

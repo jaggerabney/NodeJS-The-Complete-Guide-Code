@@ -5,9 +5,9 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 require("dotenv").config();
 
-// const adminRoutes = require("./routes/admin");
-// const shopRoutes = require("./routes/shop");
-// const _404Controller = require("./controllers/404");
+const adminRoutes = require("./routes/admin");
+const shopRoutes = require("./routes/shop");
+const _404Controller = require("./controllers/404");
 const User = require("./models/user");
 
 const DUMMY_USER = {
@@ -61,9 +61,9 @@ app.use(express.static(path.join(__dirname, "public")));
 // });
 
 // Adds routes and 404 page
-// app.use("/admin", adminRoutes);
-// app.use(shopRoutes);
-// app.use(_404Controller.get404page);
+app.use("/admin", adminRoutes);
+app.use(shopRoutes);
+app.use(_404Controller.get404page);
 
 // Connects to DB
 mongoose.connect(process.env.DB_CONNECTION_STRING).then(() => {
