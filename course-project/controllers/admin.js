@@ -61,7 +61,7 @@ exports.postEditProductPage = function (req, res, body) {
 exports.postDeleteProductPage = function (req, res, body) {
   const { productId } = req.body;
 
-  Product.deleteById(productId)
+  Product.findByIdAndRemove(productId)
     .then(() => res.redirect("/admin/products"))
     .catch((error) => console.log(error));
 };
