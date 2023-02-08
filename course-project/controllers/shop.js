@@ -100,13 +100,17 @@ exports.postOrderPage = function (req, res, next) {
 
       order.save();
     })
-    .then(() => res.redirect("/orders"))
+    .then(() => {
+      return req.user.clearCart();
+    })
+    .then(() => {
+      res.redirect("/orders");
+    })
     .catch((error) => console.log(error));
 };
 
 exports.getOrdersPage = function (req, res, next) {
-  req.user
-    .getOrders()
+  Order.find({ "user.userId": req.user._id })
     .then((orders) => {
       res.render("shop/orders", {
         title: "Orders",
