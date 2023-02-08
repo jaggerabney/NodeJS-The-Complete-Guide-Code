@@ -2,7 +2,7 @@ const Product = require("../models/product");
 // const Order = require("../models/order");
 
 exports.getProductListPage = function (req, res, next) {
-  Product.fetchAll()
+  Product.find()
     .then((products) => {
       res.render("shop/product-list", {
         products: products ? products : [],
@@ -34,7 +34,7 @@ exports.getProductPage = function (req, res, next) {
 };
 
 exports.getIndexPage = function (req, res, next) {
-  Product.fetchAll()
+  Product.find()
     .then((products) => {
       res.render("shop/index", {
         products: products ? products : [],
