@@ -2,12 +2,13 @@
 const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
+require("dotenv").config();
 
-const adminRoutes = require("./routes/admin");
-const shopRoutes = require("./routes/shop");
-const _404Controller = require("./controllers/404");
+// const adminRoutes = require("./routes/admin");
+// const shopRoutes = require("./routes/shop");
+// const _404Controller = require("./controllers/404");
 const User = require("./models/user");
-const mongoConnect = require("./util/database").mongoConnect;
 
 const DUMMY_USER = {
   _id: "63e1993294866e1011e7496f",
@@ -49,22 +50,22 @@ app.set("views", "views/pug");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use((req, res, next) => {
-  User.findById(DUMMY_USER._id)
-    .then((user) => {
-      req.user = new User(user.name, user.email, user.cart, user._id);
+// app.use((req, res, next) => {
+//   User.findById(DUMMY_USER._id)
+//     .then((user) => {
+//       req.user = new User(user.name, user.email, user.cart, user._id);
 
-      next();
-    })
-    .catch((error) => console.log(error));
-});
+//       next();
+//     })
+//     .catch((error) => console.log(error));
+// });
 
 // Adds routes and 404 page
-app.use("/admin", adminRoutes);
-app.use(shopRoutes);
-app.use(_404Controller.get404page);
+// app.use("/admin", adminRoutes);
+// app.use(shopRoutes);
+// app.use(_404Controller.get404page);
 
-// Connect to DB
-mongoConnect(() => {
+// Connects to DB
+mongoose.connect(process.env.DB_CONNECTION_STRING).then(() => {
   app.listen(3000);
 });
