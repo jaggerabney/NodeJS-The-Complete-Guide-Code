@@ -6,6 +6,7 @@ block content
         img(src=`${product.imageUrl}`, alt=`${product.title}`)
     h2 #{new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(product.price)}
     p #{product.description}
-    form(action="/cart", method="POST") 
-        input(type="hidden" name="productId" value=`${product._id}`)
-        button.btn(type="submit") Add to Cart
+    if isAuthenticated
+        form(action="/cart", method="POST") 
+            input(type="hidden" name="productId" value=`${product._id}`)
+            button.btn(type="submit") Add to Cart

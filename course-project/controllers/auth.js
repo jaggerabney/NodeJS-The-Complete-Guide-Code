@@ -23,8 +23,13 @@ exports.postLoginPage = function (req, res, next) {
     .then((user) => {
       req.session.isLoggedIn = true;
       req.session.user = user;
+      req.session.save((error) => {
+        if (error) {
+          console.log(error);
+        }
 
-      res.redirect("/");
+        res.redirect("/");
+      });
     })
     .catch((error) => console.log(error));
 };
