@@ -4,6 +4,7 @@ const path = require("path");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const session = require("express-session");
+const mongoDBstore = require("connect-mongodb-session")(session);
 require("dotenv").config();
 
 // Project imports
@@ -25,6 +26,10 @@ const DUMMY_USER = {
 
 // Creates app
 const app = express();
+const store = new mongoDBstore({
+  uri: process.env.DB_CONNECTION_STRING,
+  collection: "sessions",
+});
 
 // Configures template engine
 // I included the code for all three template engines because why not
@@ -53,7 +58,14 @@ app.set("views", "views/pug");
 // Adds body-parser to app and exposes "public" folder
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
-app.use(session({ secret: "secret", resave: false, saveUninitialized: false }));
+app.use(
+  session({
+    secret: "secret",
+    resave: false,
+    saveUninitialized: false,
+    store: store,
+  })
+);
 
 // Imitates login
 app.use((req, res, next) => {
