@@ -7,6 +7,7 @@ require("dotenv").config();
 
 const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
+const authRoutes = require("./routes/auth");
 const _404Controller = require("./controllers/404");
 const User = require("./models/user");
 
@@ -63,6 +64,7 @@ app.use((req, res, next) => {
 // Adds routes and 404 page
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
+app.use(authRoutes);
 app.use(_404Controller.get404page);
 
 // Connects to DB
