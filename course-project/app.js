@@ -1,16 +1,19 @@
-// Imports
+// Third-party imports
 const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const session = require("express-session");
 require("dotenv").config();
 
+// Project imports
 const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
 const authRoutes = require("./routes/auth");
 const _404Controller = require("./controllers/404");
 const User = require("./models/user");
 
+// Dummy user to imitate login
 const DUMMY_USER = {
   _id: "63e3336da2577832141c64ed",
   name: "Jagger",
@@ -50,7 +53,9 @@ app.set("views", "views/pug");
 // Adds body-parser to app and exposes "public" folder
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
+app.use(session({ secret: "secret", resave: false, saveUninitialized: false }));
 
+// Imitates login
 app.use((req, res, next) => {
   User.findById(DUMMY_USER._id)
     .then((user) => {
