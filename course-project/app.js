@@ -14,16 +14,6 @@ const authRoutes = require("./routes/auth");
 const _404Controller = require("./controllers/404");
 const User = require("./models/user");
 
-// Dummy user to imitate login
-const DUMMY_USER = {
-  _id: "63e3336da2577832141c64ed",
-  name: "Jagger",
-  email: "test@test.com",
-  cart: {
-    items: [],
-  },
-};
-
 // Creates app
 const app = express();
 const store = new mongoDBstore({
@@ -66,17 +56,6 @@ app.use(
     store: store,
   })
 );
-
-// Imitates login
-app.use((req, res, next) => {
-  User.findById(DUMMY_USER._id)
-    .then((user) => {
-      req.user = user;
-
-      next();
-    })
-    .catch((error) => console.log(error));
-});
 
 // Adds routes and 404 page
 app.use("/admin", adminRoutes);
