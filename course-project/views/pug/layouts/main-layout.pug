@@ -25,8 +25,13 @@ html(lang="en")
                         li.main-header__item
                             a(href="/admin/products", class=(path === "/admin/products" ? "active" : "")) Admin Products
                 ul.main-header__item-list 
-                    li.main-header__item 
-                        a(href="/login", class=(path === "/login" ? "active" : "")) Login 
+                    if isAuthenticated 
+                        li.main-header__item
+                            form(action="/logout", method="POST")
+                                button(type="submit") Logout
+                    else 
+                        li.main-header__item 
+                            a(href="/login", class=(path === "/login" ? "active" : "")) Login
 
         main
             block content

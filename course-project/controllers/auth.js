@@ -28,3 +28,9 @@ exports.postLoginPage = function (req, res, next) {
     })
     .catch((error) => console.log(error));
 };
+
+exports.postLogoutPage = function (req, res, next) {
+  req.session.destroy(() => {
+    res.redirect("/");
+  });
+};
