@@ -4,6 +4,7 @@ exports.getAddProductPage = function (req, res, next) {
   res.render("admin/edit-product", {
     title: "Add Product",
     path: "/admin/add-product",
+    isAuthenticated: req.isLoggedIn,
   });
 };
 
@@ -39,6 +40,7 @@ exports.getEditProductPage = function (req, res, next) {
         path: "/admin/edit-product",
         editing: isEditing,
         product: product,
+        isAuthenticated: req.isLoggedIn,
       });
     });
   }
@@ -74,6 +76,7 @@ exports.getProductsPage = function (req, res, next) {
       products: products ? products : [],
       title: "Admin Products",
       path: "/admin/products",
+      isAuthenticated: req.isLoggedIn,
     });
   });
 };
