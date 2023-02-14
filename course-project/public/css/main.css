@@ -228,6 +228,21 @@ form {
   color: white;
 }
 
+.message {
+  border: 1px solid #4771fa;
+  background-color: #b9c9ff;
+  padding: 0.5rem;
+  border-radius: 3px;
+  text-align: center;
+  width: 35%;
+}
+
+.error-message {
+  border-color: red;
+  background-color: #ffb0b0;
+  color: red;
+}
+
 @media (min-width: 768px) {
   .main-header__nav {
     display: flex;

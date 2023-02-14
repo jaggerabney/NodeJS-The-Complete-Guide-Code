@@ -4,6 +4,8 @@ block styles
     link(rel="stylesheet", href="/css/forms.css")
 
 block content 
+    if errorMessage
+        div.message.error-message #{errorMessage}
     form.form(action="/login", method="POST")
         div.form-control 
             label(for="email") Email 
