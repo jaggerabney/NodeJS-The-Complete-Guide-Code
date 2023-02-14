@@ -43,7 +43,6 @@ exports.getIndexPage = function (req, res, next) {
         products: products ? products : [],
         title: "Shop",
         path: "/",
-        isAuthenticated: req.session.isLoggedIn,
       });
     })
     .catch((error) => console.log(error));
@@ -101,7 +100,7 @@ exports.postOrderPage = function (req, res, next) {
 
       const order = new Order({
         user: {
-          name: req.session.user.name,
+          email: req.session.user.email,
           userId: req.session.user._id,
         },
         products: products,

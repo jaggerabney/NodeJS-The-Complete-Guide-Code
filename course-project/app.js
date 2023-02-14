@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const session = require("express-session");
 const mongoDBstore = require("connect-mongodb-session")(session);
+const csrf = require("csurf");
 require("dotenv").config();
 
 // Project imports
@@ -12,6 +13,7 @@ const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
 const authRoutes = require("./routes/auth");
 const _404Controller = require("./controllers/404");
+const { nextTick } = require("process");
 
 // Creates app
 const app = express();
@@ -19,6 +21,7 @@ const store = new mongoDBstore({
   uri: process.env.DB_CONNECTION_STRING,
   collection: "sessions",
 });
+const csurf = csrf();
 
 // Configures template engine
 // I included the code for all three template engines because why not
@@ -55,6 +58,13 @@ app.use(
     store: store,
   })
 );
+app.use(csurf);
+app.use((req, res, next) => {
+  res.locals.isAuthenticated = req.session.isLoggedIn;
+  res.locals.csrfToken = req.csrfToken();
+
+  next();
+});
 
 // Adds routes and 404 page
 app.use("/admin", adminRoutes);

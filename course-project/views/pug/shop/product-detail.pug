@@ -9,4 +9,5 @@ block content
     if isAuthenticated
         form(action="/cart", method="POST") 
             input(type="hidden" name="productId" value=`${product._id}`)
+            input(type="hidden", name="_csrf", value=`${csrfToken}`)
             button.btn(type="submit") Add to Cart
