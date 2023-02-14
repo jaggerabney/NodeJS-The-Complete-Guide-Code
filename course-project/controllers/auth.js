@@ -19,17 +19,35 @@ exports.getSignupPage = function (req, res, next) {
 };
 
 exports.postLoginPage = function (req, res, next) {
-  User.findById(DUMMY_USER._id)
-    .then((user) => {
-      req.session.isLoggedIn = true;
-      req.session.user = user;
-      req.session.save((error) => {
-        if (error) {
-          console.log(error);
-        }
+  const { email, password } = req.body;
 
-        res.redirect("/");
-      });
+  User.findOne({ email })
+    .then((user) => {
+      if (user) {
+        bcrypt
+          .compare(password, user.password)
+          .then((doMatch) => {
+            if (doMatch) {
+              req.session.isLoggedIn = true;
+              req.session.user = user;
+
+              return req.session.save((error) => {
+                if (error) {
+                  console.log(error);
+                }
+
+                res.redirect("/");
+              });
+            } else {
+              res.redirect("/login");
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      } else {
+        return res.redirect("/login");
+      }
     })
     .catch((error) => console.log(error));
 };
