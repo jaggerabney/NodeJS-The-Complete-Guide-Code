@@ -64,20 +64,9 @@ app.use(authRoutes);
 app.use(_404Controller.get404page);
 
 // Connects to DB
-mongoose.connect(process.env.DB_CONNECTION_STRING).then(() => {
-  User.findOne().then((user) => {
-    if (!user) {
-      const user = new User({
-        name: DUMMY_USER.name,
-        email: DUMMY_USER.email,
-        cart: {
-          items: [],
-        },
-      });
-
-      user.save();
-    }
-
+mongoose
+  .connect(process.env.DB_CONNECTION_STRING)
+  .then(() => {
     app.listen(3000);
-  });
-});
+  })
+  .catch((error) => console.log(error));

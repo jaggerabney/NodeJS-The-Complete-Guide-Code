@@ -5,7 +5,7 @@ block styles
     link(rel="stylesheet", href="/css/product.css")
 
 block content 
-    form.form-control(action=`/admin/${editing ? "edit-product" : "add-product"}`, method="POST")
+    form.form(action=`/admin/${editing ? "edit-product" : "add-product"}`, method="POST")
         .form-control 
             label(for="title") Title 
             input(type="text", name="title", value=`${product ? product.title : ""}`)#title 
