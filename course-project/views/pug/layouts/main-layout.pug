@@ -32,6 +32,8 @@ html(lang="en")
                     else 
                         li.main-header__item 
                             a(href="/login", class=(path === "/login" ? "active" : "")) Login
+                        li.main-header__item 
+                            a(href="/signup", class=(path === "/signup" ? "active" : "")) Signup
 
         main
             block content

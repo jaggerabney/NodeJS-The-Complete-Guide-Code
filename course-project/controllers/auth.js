@@ -18,6 +18,14 @@ exports.getLoginPage = function (req, res, next) {
   });
 };
 
+exports.getSignupPage = function (req, res, next) {
+  res.render("auth/signup", {
+    path: "/signup",
+    title: "Signup",
+    isAuthenticated: false,
+  });
+};
+
 exports.postLoginPage = function (req, res, next) {
   User.findById(DUMMY_USER._id)
     .then((user) => {
@@ -33,6 +41,8 @@ exports.postLoginPage = function (req, res, next) {
     })
     .catch((error) => console.log(error));
 };
+
+exports.postSignupPage = function (req, res, next) {};
 
 exports.postLogoutPage = function (req, res, next) {
   req.session.destroy(() => {

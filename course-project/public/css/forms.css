@@ -1,5 +1,18 @@
+.form {
+  margin: 1rem;
+  width: 25%;
+}
+
 .form-control {
-  margin: 1rem 0;
+  margin: 0.5rem 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.form button {
+  margin-top: 0.25rem;
 }
 
 .form-control label,
