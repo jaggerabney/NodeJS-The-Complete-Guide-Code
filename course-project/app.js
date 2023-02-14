@@ -12,7 +12,6 @@ const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
 const authRoutes = require("./routes/auth");
 const _404Controller = require("./controllers/404");
-const User = require("./models/user");
 
 // Creates app
 const app = express();
