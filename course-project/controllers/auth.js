@@ -1,6 +1,10 @@
 const bcrypt = require("bcryptjs");
+const sendGrid = require("@sendgrid/mail");
+require("dotenv").config();
 
 const User = require("../models/user");
+
+sendGrid.setApiKey(process.env.SENDGRID_API_KEY);
 
 exports.getLoginPage = function (req, res, next) {
   let message = req.flash("error");
@@ -74,20 +78,30 @@ exports.postSignupPage = function (req, res, next) {
 
         return res.redirect("/signup");
       } else {
-        return bcrypt
-          .hash(password, 12)
-          .then((hashedPassword) => {
-            const user = new User({
-              email,
-              password: hashedPassword,
-              cart: [],
-            });
+        const signupEmail = {
+          to: email,
+          from: process.env.EMAIL_USERNAME,
+          subject: "Signup successful!",
+          text: "Thanks for signing up!",
+        };
 
-            return user.save();
-          })
-          .then(() => res.redirect("/login"))
-          .catch((error) => console.log(error));
+        return sendGrid.send(signupEmail);
       }
+    })
+    .then(() => {
+      return bcrypt
+        .hash(password, 12)
+        .then((hashedPassword) => {
+          const user = new User({
+            email,
+            password: hashedPassword,
+            cart: [],
+          });
+
+          return user.save();
+        })
+        .then(() => res.redirect("/login"))
+        .catch((error) => console.log(error));
     })
     .catch((error) => console.log(error));
 };
