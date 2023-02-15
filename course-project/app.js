@@ -14,7 +14,7 @@ const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
 const authRoutes = require("./routes/auth");
 const _404Controller = require("./controllers/404");
-const { nextTick } = require("process");
+const User = require("./models/user");
 
 // Creates app
 const app = express();
@@ -48,7 +48,7 @@ app.set("views", "views/pug");
 // app.set("view engine", "ejs");
 // app.set("views", "views/ejs");
 
-// Adds body-parser to app and exposes "public" folder
+// Adds body-parser; exposes public folder; manages sessions, CSRF protection, and flashing
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(
@@ -68,13 +68,28 @@ app.use((req, res, next) => {
 });
 app.use(flash());
 
+// Adds current user to req, if there is one
+app.use((req, res, next) => {
+  if (!req.session.user) {
+    return next();
+  } else {
+    User.findById(req.session.user._id)
+      .then((user) => {
+        req.user = user;
+
+        next();
+      })
+      .catch((error) => console.log(error));
+  }
+});
+
 // Adds routes and 404 page
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
 app.use(_404Controller.get404page);
 
-// Connects to DB
+// Connects to DB and starts server
 mongoose
   .connect(process.env.DB_CONNECTION_STRING)
   .then(() => {

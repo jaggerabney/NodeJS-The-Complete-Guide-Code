@@ -48,6 +48,12 @@ exports.postEditProductPage = function (req, res, body) {
   const { title, imageUrl, price, description, productId } = req.body;
 
   Product.findById(productId).then((product) => {
+    if (product.userId.toString() !== req.user._id.toString()) {
+      req.flash("error", "Products not belonging to you cannot be edited.");
+
+      return res.redirect("/admin/products");
+    }
+
     product.title = title;
     product.price = price;
     product.description = description;
@@ -63,17 +69,28 @@ exports.postEditProductPage = function (req, res, body) {
 exports.postDeleteProductPage = function (req, res, body) {
   const { productId } = req.body;
 
-  Product.findByIdAndRemove(productId)
-    .then(() => res.redirect("/admin/products"))
+  Product.deleteOne({ _id: productId, userId: req.user._id })
+    .then((error, result) => {
+      if (error) {
+        req.flash("error", "Products not belonging to you cannot be deleted.");
+      }
+
+      return res.redirect("/admin/products");
+    })
     .catch((error) => console.log(error));
 };
 
 exports.getProductsPage = function (req, res, next) {
-  Product.find().then((products) => {
+  let message = req.flash("error");
+
+  message = message.length > 0 ? message[0] : null;
+
+  Product.find({ userId: req.user._id }).then((products) => {
     res.render("admin/products", {
       products: products ? products : [],
       title: "Admin Products",
       path: "/admin/products",
+      errorMessage: message,
     });
   });
 };
