@@ -90,7 +90,7 @@ exports.postSignupPage = function (req, res, next) {
 
             return sendGrid.send(signupEmail).then(() => {
               return bcrypt
-                .hash(password, 12)
+                .hash(password, Number(process.env.SALT_VALUE))
                 .then((hashedPassword) => {
                   const user = new User({
                     email,
@@ -186,7 +186,44 @@ exports.getNewPasswordPage = function (req, res, next) {
         title: "Create New Password",
         errorMessage: message,
         userId: user._id.toString(),
+        passwordToken: token,
       });
     })
     .catch((error) => console.log(error));
+};
+
+exports.postNewPasswordPage = function (req, res, next) {
+  const { newPassword, userId, passwordToken } = req.body;
+
+  User.findOne({
+    resetToken: passwordToken,
+    resetTokenExpiration: { $gt: Date.now() },
+    _id: userId,
+  }).then((user) => {
+    return bcrypt
+      .hash(newPassword, Number(process.env.SALT_VALUE))
+      .then((hashedPassword) => {
+        console.log(user);
+
+        user.password = hashedPassword;
+        user.resetToken = null;
+        user.resetTokenExpiration = undefined;
+
+        return user.save().then(() => {
+          const confirmMessage = {
+            to: user.email,
+            from: process.env.EMAIL_USERNAME,
+            subject: "Password changed!",
+            html: `
+            <p>Your password was successfully changed on ${new Date().toString()}
+          `,
+          };
+
+          return sendGrid
+            .send(confirmMessage)
+            .then(() => res.redirect("/login"));
+        });
+      })
+      .catch((error) => console.log(error));
+  });
 };
