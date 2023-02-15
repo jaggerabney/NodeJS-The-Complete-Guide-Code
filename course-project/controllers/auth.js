@@ -36,7 +36,7 @@ exports.postLoginPage = function (req, res, next) {
   User.findOne({ email })
     .then((user) => {
       if (user) {
-        bcrypt
+        return bcrypt
           .compare(password, user.password)
           .then((doMatch) => {
             if (doMatch) {
@@ -78,30 +78,36 @@ exports.postSignupPage = function (req, res, next) {
 
         return res.redirect("/signup");
       } else {
-        const signupEmail = {
-          to: email,
-          from: process.env.EMAIL_USERNAME,
-          subject: "Signup successful!",
-          text: "Thanks for signing up!",
-        };
+        return bcrypt.compare(password, confirmPassword).then((doMatch) => {
+          if (doMatch) {
+            const signupEmail = {
+              to: email,
+              from: process.env.EMAIL_USERNAME,
+              subject: "Signup successful!",
+              text: "Thanks for signing up!",
+            };
 
-        return sendGrid.send(signupEmail);
+            return sendGrid.send(signupEmail).then(() => {
+              return bcrypt
+                .hash(password, 12)
+                .then((hashedPassword) => {
+                  const user = new User({
+                    email,
+                    password: hashedPassword,
+                    cart: [],
+                  });
+
+                  return user.save();
+                })
+                .then(() => res.redirect("/login"));
+            });
+          } else {
+            req.flash("error", "Passwords do not match.");
+
+            return res.redirect("/signup");
+          }
+        });
       }
-    })
-    .then(() => {
-      return bcrypt
-        .hash(password, 12)
-        .then((hashedPassword) => {
-          const user = new User({
-            email,
-            password: hashedPassword,
-            cart: [],
-          });
-
-          return user.save();
-        })
-        .then(() => res.redirect("/login"))
-        .catch((error) => console.log(error));
     })
     .catch((error) => console.log(error));
 };
