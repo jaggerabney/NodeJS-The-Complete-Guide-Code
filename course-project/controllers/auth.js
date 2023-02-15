@@ -171,3 +171,22 @@ exports.postResetPage = function (req, res, next) {
     });
   });
 };
+
+exports.getNewPasswordPage = function (req, res, next) {
+  const token = req.params.token;
+
+  User.findOne({ resetToken: token, resetTokenExpiration: { $gt: Date.now() } })
+    .then((user) => {
+      let message = req.flash("error");
+
+      message = message.length > 0 ? message[0] : null;
+
+      res.render("auth/new-password", {
+        path: "/new-password",
+        title: "Create New Password",
+        errorMessage: message,
+        userId: user._id.toString(),
+      });
+    })
+    .catch((error) => console.log(error));
+};
