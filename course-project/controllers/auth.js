@@ -1,5 +1,6 @@
 const bcrypt = require("bcryptjs");
 const sendGrid = require("@sendgrid/mail");
+const crypto = require("crypto");
 require("dotenv").config();
 
 const User = require("../models/user");
@@ -127,5 +128,46 @@ exports.getResetPage = function (req, res, next) {
     path: "/reset",
     title: "Reset Password",
     errorMessage: message,
+  });
+};
+
+exports.postResetPage = function (req, res, next) {
+  crypto.randomBytes(32, (error, buffer) => {
+    if (error) {
+      console.log(error);
+
+      return res.redirect("/reset");
+    }
+
+    const token = buffer.toString("hex");
+
+    User.findOne({ email: req.body.email }).then((user) => {
+      if (!user) {
+        req.flash("error", "No account found!");
+
+        return res.redirect("/reset");
+      }
+
+      user.resetToken = token;
+      user.resetTokenExpiration = Date.now() + 3600000;
+
+      return user
+        .save()
+        .then((result) => {
+          const resetEmail = {
+            to: req.body.email,
+            from: process.env.EMAIL_USERNAME,
+            subject: "Password reset",
+            html: `
+              <p>A password reset request was made at ${new Date().toString()}.</p>
+              <p>If this request was made by you, please click <a href="http://localhost:3000/reset/${token}">here</a>.</p>
+              <p>If this request was <em>not</em> made by you, please reset your password immediately.</p>
+            `,
+          };
+
+          sendGrid.send(resetEmail).then(() => res.redirect("/"));
+        })
+        .catch((error) => console.log(error));
+    });
   });
 };
