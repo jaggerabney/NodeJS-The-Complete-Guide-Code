@@ -4,6 +4,7 @@ block styles
     link(rel="stylesheet", href="/css/forms.css")
 
 block content 
+    h1 Login
     if errorMessage
         div.message.error-message #{errorMessage}
     form.form(action="/login", method="POST")

@@ -1,4 +1,5 @@
 const express = require("express");
+const { check, validationResult } = require("express-validator/check");
 
 const authController = require("../controllers/auth");
 
@@ -10,7 +11,11 @@ router.get("/reset", authController.getResetPage);
 router.get("/reset/:token", authController.getNewPasswordPage);
 router.post("/login", authController.postLoginPage);
 router.post("/logout", authController.postLogoutPage);
-router.post("/signup", authController.postSignupPage);
+router.post(
+  "/signup",
+  check("email").isEmail().withMessage("Entered email is not a valid email."),
+  authController.postSignupPage
+);
 router.post("/reset", authController.postResetPage);
 router.post("/new-password", authController.postNewPasswordPage);
 

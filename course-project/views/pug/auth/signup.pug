@@ -4,9 +4,10 @@ block styles
     link(rel="stylesheet", href="/css/forms.css")
 
 block content 
+    h1 Signup
     if errorMessage
         div.message.error-message #{errorMessage}
-    form.form(action="/signup", method="POST")
+    form.form(action="/signup", method="POST" novalidate)
         div.form-control 
             label(for="email") Email 
             input(type="email", name="email", id="email")  

@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const sendGrid = require("@sendgrid/mail");
 const crypto = require("crypto");
+const { validationResult } = require("express-validator/check");
 require("dotenv").config();
 
 const User = require("../models/user");
@@ -71,6 +72,15 @@ exports.postLoginPage = function (req, res, next) {
 
 exports.postSignupPage = function (req, res, next) {
   const { email, password, confirmPassword } = req.body;
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(422).render("auth/signup", {
+      path: "/signup",
+      title: "Signup",
+      errorMessage: errors.array()[0].msg,
+    });
+  }
 
   User.findOne({ email })
     .then((result) => {
@@ -215,7 +225,7 @@ exports.postNewPasswordPage = function (req, res, next) {
             from: process.env.EMAIL_USERNAME,
             subject: "Password changed!",
             html: `
-            <p>Your password was successfully changed on ${new Date().toString()}
+            <p>Your password was successfully changed on ${new Date().toString()}.
           `,
           };
 
