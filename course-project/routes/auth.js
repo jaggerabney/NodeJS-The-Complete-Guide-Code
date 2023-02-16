@@ -3,6 +3,8 @@ const { check, body, validationResult } = require("express-validator/check");
 
 const authController = require("../controllers/auth");
 
+const User = require("../models/user");
+
 const router = express.Router();
 
 router.get("/login", authController.getLoginPage);
@@ -14,6 +16,13 @@ router.post("/logout", authController.postLogoutPage);
 router.post(
   "/signup",
   check("email", "Entered email is not a valid email.").isEmail(),
+  check("email", "Email already exists.").custom((value, { req }) => {
+    User.findOne({ email: value }).then((user) => {
+      if (user) {
+        return Promise.reject();
+      }
+    });
+  }),
   body("password", "Passwords must be at least five characters long.").isLength(
     { min: 5 }
   ),

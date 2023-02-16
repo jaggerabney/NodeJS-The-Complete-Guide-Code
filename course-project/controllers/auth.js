@@ -71,7 +71,7 @@ exports.postLoginPage = function (req, res, next) {
 };
 
 exports.postSignupPage = function (req, res, next) {
-  const { email, password, confirmPassword } = req.body;
+  const { email, password } = req.body;
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
@@ -83,34 +83,28 @@ exports.postSignupPage = function (req, res, next) {
   }
 
   User.findOne({ email })
-    .then((result) => {
-      if (result) {
-        req.flash("error", "Email already exists.");
+    .then(() => {
+      const signupEmail = {
+        to: email,
+        from: process.env.EMAIL_USERNAME,
+        subject: "Signup successful!",
+        text: "Thanks for signing up!",
+      };
 
-        return res.redirect("/signup");
-      } else {
-        const signupEmail = {
-          to: email,
-          from: process.env.EMAIL_USERNAME,
-          subject: "Signup successful!",
-          text: "Thanks for signing up!",
-        };
+      return sendGrid.send(signupEmail).then(() => {
+        return bcrypt
+          .hash(password, Number(process.env.SALT_VALUE))
+          .then((hashedPassword) => {
+            const user = new User({
+              email,
+              password: hashedPassword,
+              cart: [],
+            });
 
-        return sendGrid.send(signupEmail).then(() => {
-          return bcrypt
-            .hash(password, Number(process.env.SALT_VALUE))
-            .then((hashedPassword) => {
-              const user = new User({
-                email,
-                password: hashedPassword,
-                cart: [],
-              });
-
-              return user.save();
-            })
-            .then(() => res.redirect("/login"));
-        });
-      }
+            return user.save();
+          })
+          .then(() => res.redirect("/login"));
+      });
     })
     .catch((error) => console.log(error));
 };
