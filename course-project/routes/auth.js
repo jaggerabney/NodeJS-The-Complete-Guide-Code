@@ -1,5 +1,5 @@
 const express = require("express");
-const { check, validationResult } = require("express-validator/check");
+const { check, body, validationResult } = require("express-validator/check");
 
 const authController = require("../controllers/auth");
 
@@ -13,7 +13,17 @@ router.post("/login", authController.postLoginPage);
 router.post("/logout", authController.postLogoutPage);
 router.post(
   "/signup",
-  check("email").isEmail().withMessage("Entered email is not a valid email."),
+  check("email", "Entered email is not a valid email.").isEmail(),
+  body("password", "Passwords must be at least five characters long.").isLength(
+    { min: 5 }
+  ),
+  body("confirmPassword").custom((value, { req }) => {
+    if (value !== req.body.password) {
+      throw new Error("Passwords do not match!");
+    }
+
+    return true;
+  }),
   authController.postSignupPage
 );
 router.post("/reset", authController.postResetPage);

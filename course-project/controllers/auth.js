@@ -89,34 +89,26 @@ exports.postSignupPage = function (req, res, next) {
 
         return res.redirect("/signup");
       } else {
-        return bcrypt.compare(password, confirmPassword).then((doMatch) => {
-          if (doMatch) {
-            const signupEmail = {
-              to: email,
-              from: process.env.EMAIL_USERNAME,
-              subject: "Signup successful!",
-              text: "Thanks for signing up!",
-            };
+        const signupEmail = {
+          to: email,
+          from: process.env.EMAIL_USERNAME,
+          subject: "Signup successful!",
+          text: "Thanks for signing up!",
+        };
 
-            return sendGrid.send(signupEmail).then(() => {
-              return bcrypt
-                .hash(password, Number(process.env.SALT_VALUE))
-                .then((hashedPassword) => {
-                  const user = new User({
-                    email,
-                    password: hashedPassword,
-                    cart: [],
-                  });
+        return sendGrid.send(signupEmail).then(() => {
+          return bcrypt
+            .hash(password, Number(process.env.SALT_VALUE))
+            .then((hashedPassword) => {
+              const user = new User({
+                email,
+                password: hashedPassword,
+                cart: [],
+              });
 
-                  return user.save();
-                })
-                .then(() => res.redirect("/login"));
-            });
-          } else {
-            req.flash("error", "Passwords do not match.");
-
-            return res.redirect("/signup");
-          }
+              return user.save();
+            })
+            .then(() => res.redirect("/login"));
         });
       }
     })
