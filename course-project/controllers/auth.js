@@ -33,39 +33,29 @@ exports.getSignupPage = function (req, res, next) {
 };
 
 exports.postLoginPage = function (req, res, next) {
-  const { email, password } = req.body;
+  const { email } = req.body;
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(422).render("auth/login", {
+      path: "/login",
+      title: "Login",
+      errorMessage: errors.array()[0].msg,
+    });
+  }
 
   User.findOne({ email })
     .then((user) => {
-      if (user) {
-        return bcrypt
-          .compare(password, user.password)
-          .then((doMatch) => {
-            if (doMatch) {
-              req.session.isLoggedIn = true;
-              req.session.user = user;
+      req.session.isLoggedIn = true;
+      req.session.user = user;
 
-              return req.session.save((error) => {
-                if (error) {
-                  console.log(error);
-                }
+      return req.session.save((error) => {
+        if (error) {
+          console.log(error);
+        }
 
-                res.redirect("/");
-              });
-            } else {
-              req.flash("error", "Invalid email or password.");
-
-              res.redirect("/login");
-            }
-          })
-          .catch((error) => {
-            console.log(error);
-          });
-      } else {
-        req.flash("error", "Invalid email or password.");
-
-        return res.redirect("/login");
-      }
+        res.redirect("/");
+      });
     })
     .catch((error) => console.log(error));
 };
