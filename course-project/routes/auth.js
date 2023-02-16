@@ -20,9 +20,7 @@ router.post(
       .then((user) => {
         if (user) {
           return bcrypt.compare(value, user.password).then((doMatch) => {
-            if (doMatch) {
-              return true;
-            } else {
+            if (!doMatch) {
               return Promise.reject();
             }
           });
@@ -30,7 +28,7 @@ router.post(
           return Promise.reject();
         }
       })
-      .catch((error) => console.log(error));
+      .catch(() => Promise.reject());
   }),
   authController.postLoginPage
 );

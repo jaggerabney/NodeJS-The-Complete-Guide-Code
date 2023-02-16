@@ -10,10 +10,10 @@ block content
     form.form(action="/login", method="POST")
         div.form-control 
             label(for="email") Email 
-            input(type="email" name="email" id="email") 
+            input(type="email" name="email" id="email", value=`${oldInput.email}`) 
         div.form-control 
             label(for="password") Password 
-            input(type="password" name="password" id="password") 
+            input(type="password" name="password" id="password", value=`${oldInput.password}`) 
         input(type="hidden", name="_csrf", value=`${csrfToken}`)
         button.btn(type="submit") Login
     .centered

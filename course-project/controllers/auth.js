@@ -17,6 +17,10 @@ exports.getLoginPage = function (req, res, next) {
     title: "Login",
     path: "/login",
     errorMessage: message,
+    oldInput: {
+      email: "",
+      password: "",
+    },
   });
 };
 
@@ -29,18 +33,26 @@ exports.getSignupPage = function (req, res, next) {
     path: "/signup",
     title: "Signup",
     errorMessage: message,
+    oldInput: {
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
   });
 };
 
 exports.postLoginPage = function (req, res, next) {
-  const { email } = req.body;
+  const { email, password } = req.body;
   const errors = validationResult(req);
+
+  console.log(errors);
 
   if (!errors.isEmpty()) {
     return res.status(422).render("auth/login", {
       path: "/login",
       title: "Login",
       errorMessage: errors.array()[0].msg,
+      oldInput: { email, password },
     });
   }
 
@@ -61,7 +73,7 @@ exports.postLoginPage = function (req, res, next) {
 };
 
 exports.postSignupPage = function (req, res, next) {
-  const { email, password } = req.body;
+  const { email, password, confirmPassword } = req.body;
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
@@ -69,6 +81,7 @@ exports.postSignupPage = function (req, res, next) {
       path: "/signup",
       title: "Signup",
       errorMessage: errors.array()[0].msg,
+      oldInput: { email, password, confirmPassword },
     });
   }
 
@@ -189,8 +202,6 @@ exports.postNewPasswordPage = function (req, res, next) {
     return bcrypt
       .hash(newPassword, Number(process.env.SALT_VALUE))
       .then((hashedPassword) => {
-        console.log(user);
-
         user.password = hashedPassword;
         user.resetToken = null;
         user.resetTokenExpiration = undefined;
