@@ -10,6 +10,6 @@ block content
     form.form(action="/reset", method="POST")
         div.form-control 
             label(for="email") Email 
-            input(type="email" name="email" id="email") 
+            input(class=`${validationErrors.find(error => error.param === "email") ? "invalid" : ""}`, type="email" name="email" id="email", value=`${oldInput.email}`) 
         input(type="hidden", name="_csrf", value=`${csrfToken}`)
         button.btn(type="submit") Reset Password

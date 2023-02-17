@@ -129,10 +129,26 @@ exports.getResetPage = function (req, res, next) {
     path: "/reset",
     title: "Reset Password",
     errorMessage: message,
+    oldInput: {
+      email: "",
+    },
+    validationErrors: [],
   });
 };
 
 exports.postResetPage = function (req, res, next) {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(422).render("auth/reset", {
+      path: "/reset",
+      title: "Reset Password",
+      errorMessage: errors.array()[0].msg,
+      oldInput: { email: req.body.email },
+      validationErrors: errors.array(),
+    });
+  }
+
   crypto.randomBytes(32, (error, buffer) => {
     if (error) {
       console.log(error);
@@ -143,18 +159,12 @@ exports.postResetPage = function (req, res, next) {
     const token = buffer.toString("hex");
 
     User.findOne({ email: req.body.email }).then((user) => {
-      if (!user) {
-        req.flash("error", "No account found!");
-
-        return res.redirect("/reset");
-      }
-
       user.resetToken = token;
       user.resetTokenExpiration = Date.now() + 3600000;
 
       return user
         .save()
-        .then((result) => {
+        .then(() => {
           const resetEmail = {
             to: req.body.email,
             from: process.env.EMAIL_USERNAME,
@@ -166,7 +176,7 @@ exports.postResetPage = function (req, res, next) {
             `,
           };
 
-          sendGrid.send(resetEmail).then(() => res.redirect("/"));
+          return sendGrid.send(resetEmail).then(() => res.redirect("/"));
         })
         .catch((error) => console.log(error));
     });

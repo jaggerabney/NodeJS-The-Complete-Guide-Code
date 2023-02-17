@@ -57,7 +57,20 @@ router.post(
   }),
   authController.postSignupPage
 );
-router.post("/reset", authController.postResetPage);
+router.post(
+  "/reset",
+  check("email", "Entered email is not a valid email.").isEmail(),
+  check("email", "No account found!").custom((value, { req }) => {
+    return User.findOne({ email: value }).then((user) => {
+      if (!user) {
+        console.log("No user found!");
+
+        return Promise.reject();
+      }
+    });
+  }),
+  authController.postResetPage
+);
 router.post("/new-password", authController.postNewPasswordPage);
 
 module.exports = router;

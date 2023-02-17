@@ -10,10 +10,10 @@ block content
     form.form(action="/login", method="POST")
         div.form-control
             label(for="email") Email 
-            input(class=`${validationErrors.find(error => error.param === "email") ? "invalid" : ""}`, type="email" name="email" id="email", value=`${oldInput.email}`) 
+            input(class=`${validationErrors.find(error => error.param === "email" || error.param === "password") ? "invalid" : ""}`, type="email" name="email" id="email", value=`${oldInput.email}`) 
         div.form-control 
             label(for="password") Password 
-            input(class=`${validationErrors.find(error => error.param === "password") ? "invalid" : ""}`, type="password" name="password" id="password", value=`${oldInput.password}`) 
+            input(class=`${validationErrors.find(error => error.param === "email" || error.param === "password") ? "invalid" : ""}`, type="password" name="password" id="password", value=`${oldInput.password}`) 
         input(type="hidden", name="_csrf", value=`${csrfToken}`)
         button.btn(type="submit") Login
     .centered
