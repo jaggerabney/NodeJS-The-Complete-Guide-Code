@@ -21,6 +21,7 @@ exports.getLoginPage = function (req, res, next) {
       email: "",
       password: "",
     },
+    validationErrors: [],
   });
 };
 
@@ -38,6 +39,7 @@ exports.getSignupPage = function (req, res, next) {
       password: "",
       confirmPassword: "",
     },
+    validationErrors: [],
   });
 };
 
@@ -45,14 +47,13 @@ exports.postLoginPage = function (req, res, next) {
   const { email, password } = req.body;
   const errors = validationResult(req);
 
-  console.log(errors);
-
   if (!errors.isEmpty()) {
     return res.status(422).render("auth/login", {
       path: "/login",
       title: "Login",
       errorMessage: errors.array()[0].msg,
       oldInput: { email, password },
+      validationErrors: errors.array(),
     });
   }
 
@@ -82,6 +83,7 @@ exports.postSignupPage = function (req, res, next) {
       title: "Signup",
       errorMessage: errors.array()[0].msg,
       oldInput: { email, password, confirmPassword },
+      validationErrors: errors.array(),
     });
   }
 
