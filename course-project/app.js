@@ -95,6 +95,9 @@ app.use(shopRoutes);
 app.use(authRoutes);
 app.get("/500", errorController.get500page);
 app.use(errorController.get404page);
+app.use((error, req, res, next) => {
+  return res.redirect("/500");
+});
 
 // Connects to DB and starts server
 mongoose

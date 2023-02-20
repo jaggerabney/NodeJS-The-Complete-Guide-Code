@@ -1,6 +1,7 @@
 const Product = require("../models/product");
 const Order = require("../models/order");
 const User = require("../models/user");
+const generateError = require("../util/generateError");
 
 exports.getProductListPage = function (req, res, next) {
   Product.find()
@@ -12,7 +13,7 @@ exports.getProductListPage = function (req, res, next) {
         isAuthenticated: req.session.isLoggedIn,
       });
     })
-    .catch((error) => console.log(error));
+    .catch(() => next(generateError("Couldn't get products!", 500)));
 };
 
 exports.getProductPage = function (req, res, next) {
@@ -33,7 +34,7 @@ exports.getProductPage = function (req, res, next) {
 
       next();
     })
-    .catch((error) => console.log(error));
+    .catch(() => next(generateError("Couldn't get product!", 500)));
 };
 
 exports.getIndexPage = function (req, res, next) {
@@ -45,7 +46,7 @@ exports.getIndexPage = function (req, res, next) {
         path: "/",
       });
     })
-    .catch((error) => console.log(error));
+    .catch(() => next(generateError("Couldn't get products!", 500)));
 };
 
 exports.getCartPage = function (req, res, next) {
@@ -61,7 +62,7 @@ exports.getCartPage = function (req, res, next) {
         isAuthenticated: req.session.isLoggedIn,
       });
     })
-    .catch((error) => console.log(error));
+    .catch(() => next(generateError("Couldn't get cart!", 500)));
 };
 
 exports.postCartPage = function (req, res, next) {
@@ -79,12 +80,16 @@ exports.postCartDeletePage = function (req, res, next) {
 
   User.findById(req.session.user._id)
     .then((user) => {
-      user
+      return user
         .removeFromCart(productId)
         .then(() => res.redirect("/cart"))
-        .catch((error) => console.log(error));
+        .catch(() =>
+          next(generateError("Couldn't remove product from cart!", 500))
+        );
     })
-    .catch((error) => console.log(error));
+    .catch(() =>
+      next(generateError("Couldn't find user in current session!", 500))
+    );
 };
 
 exports.postOrderPage = function (req, res, next) {
@@ -114,7 +119,7 @@ exports.postOrderPage = function (req, res, next) {
     .then(() => {
       res.redirect("/orders");
     })
-    .catch((error) => console.log(error));
+    .catch(() => next(generateError("Couldn't post order!", 500)));
 };
 
 exports.getOrdersPage = function (req, res, next) {
@@ -127,7 +132,7 @@ exports.getOrdersPage = function (req, res, next) {
         isAuthenticated: req.session.isLoggedIn,
       });
     })
-    .catch((error) => console.log(error));
+    .catch(() => next(generateError("Couldn't find order!", 500)));
 };
 
 exports.getCheckoutPage = function (req, res, next) {

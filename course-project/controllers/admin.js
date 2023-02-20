@@ -1,6 +1,7 @@
 const { validationResult } = require("express-validator/check");
 
 const Product = require("../models/product");
+const generateError = require("../util/generateError");
 
 exports.getAddProductPage = function (req, res, next) {
   return res.render("admin/edit-product", {
@@ -45,9 +46,7 @@ exports.postAddProductPage = function (req, res, next) {
   return product
     .save()
     .then(() => res.redirect("/admin/products"))
-    .catch(() => {
-      return res.redirect("/500");
-    });
+    .catch(() => next(generateError("Product creation failed!", 500)));
 };
 
 exports.getEditProductPage = function (req, res, next) {
@@ -113,7 +112,7 @@ exports.postEditProductPage = function (req, res, body) {
     return product
       .save()
       .then(() => res.redirect("/admin/products"))
-      .catch((error) => console.log(error));
+      .catch(() => next(generateError("Product editing failed!", 500)));
   });
 };
 
@@ -128,7 +127,7 @@ exports.postDeleteProductPage = function (req, res, body) {
 
       return res.redirect("/admin/products");
     })
-    .catch((error) => console.log(error));
+    .catch(() => next(generateError("Product deletion failed!", 500)));
 };
 
 exports.getProductsPage = function (req, res, next) {

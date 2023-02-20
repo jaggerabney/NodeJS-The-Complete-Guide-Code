@@ -5,6 +5,7 @@ const { validationResult } = require("express-validator/check");
 require("dotenv").config();
 
 const User = require("../models/user");
+const generateError = require("../util/generateError");
 
 sendGrid.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -64,13 +65,13 @@ exports.postLoginPage = function (req, res, next) {
 
       return req.session.save((error) => {
         if (error) {
-          console.log(error);
+          return next(generateError("Couldn't save session!", 500));
         }
 
         res.redirect("/");
       });
     })
-    .catch((error) => console.log(error));
+    .catch(() => next(generateError("Couldn't log in!", 500)));
 };
 
 exports.postSignupPage = function (req, res, next) {
@@ -111,7 +112,7 @@ exports.postSignupPage = function (req, res, next) {
           .then(() => res.redirect("/login"));
       });
     })
-    .catch((error) => console.log(error));
+    .catch(() => next(generateError("Couldn't create account!", 500)));
 };
 
 exports.postLogoutPage = function (req, res, next) {
@@ -151,9 +152,9 @@ exports.postResetPage = function (req, res, next) {
 
   crypto.randomBytes(32, (error, buffer) => {
     if (error) {
-      console.log(error);
-
-      return res.redirect("/reset");
+      return next(
+        generateError("Couldn't generate password reset token!", 500)
+      );
     }
 
     const token = buffer.toString("hex");
@@ -178,7 +179,9 @@ exports.postResetPage = function (req, res, next) {
 
           return sendGrid.send(resetEmail).then(() => res.redirect("/"));
         })
-        .catch((error) => console.log(error));
+        .catch(() =>
+          next(generateError("Couldn't send password reset email!", 500))
+        );
     });
   });
 };
@@ -200,7 +203,14 @@ exports.getNewPasswordPage = function (req, res, next) {
         passwordToken: token,
       });
     })
-    .catch((error) => console.log(error));
+    .catch(() =>
+      next(
+        generateError(
+          "Couldn't find user associated with the given password reset token!",
+          500
+        )
+      )
+    );
 };
 
 exports.postNewPasswordPage = function (req, res, next) {
@@ -239,6 +249,8 @@ exports.postNewPasswordPage = function (req, res, next) {
             .then(() => res.redirect("/login"));
         });
       })
-      .catch((error) => console.log(error));
+      .catch(() =>
+        next(generateError("Couldn't send password reset email!", 500))
+      );
   });
 };
