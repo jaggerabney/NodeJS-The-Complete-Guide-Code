@@ -20,7 +20,7 @@ exports.postAddProductPage = function (req, res, next) {
   if (!errors.isEmpty()) {
     return res.status(422).render("admin/edit-product", {
       title: "Add Product",
-      path: "/admin/edit-product",
+      path: "/admin/add-product",
       editing: false,
       hasError: true,
       errorMessage: errors.array()[0].msg,
@@ -42,7 +42,12 @@ exports.postAddProductPage = function (req, res, next) {
     userId: req.session.user._id,
   });
 
-  product.save().then(() => res.redirect("/admin/products"));
+  return product
+    .save()
+    .then(() => res.redirect("/admin/products"))
+    .catch(() => {
+      return res.redirect("/500");
+    });
 };
 
 exports.getEditProductPage = function (req, res, next) {
@@ -58,7 +63,7 @@ exports.getEditProductPage = function (req, res, next) {
         return res.redirect("/");
       }
 
-      res.render("admin/edit-product", {
+      return res.render("admin/edit-product", {
         title: "Edit Product",
         path: "/admin/edit-product",
         editing: isEditing,
@@ -74,8 +79,6 @@ exports.getEditProductPage = function (req, res, next) {
 exports.postEditProductPage = function (req, res, body) {
   const { title, imageUrl, price, description, productId } = req.body;
   const errors = validationResult(req);
-
-  console.log(errors);
 
   if (!errors.isEmpty()) {
     return res.status(422).render("admin/edit-product", {
@@ -134,7 +137,7 @@ exports.getProductsPage = function (req, res, next) {
   message = message.length > 0 ? message[0] : null;
 
   Product.find({ userId: req.user._id }).then((products) => {
-    res.render("admin/products", {
+    return res.render("admin/products", {
       products: products ? products : [],
       title: "Admin Products",
       path: "/admin/products",

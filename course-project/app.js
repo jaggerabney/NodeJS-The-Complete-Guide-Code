@@ -13,7 +13,7 @@ require("dotenv").config();
 const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
 const authRoutes = require("./routes/auth");
-const _404Controller = require("./controllers/404");
+const errorController = require("./controllers/error");
 const User = require("./models/user");
 
 // Creates app
@@ -75,19 +75,26 @@ app.use((req, res, next) => {
   } else {
     User.findById(req.session.user._id)
       .then((user) => {
+        if (!user) {
+          return next();
+        }
+
         req.user = user;
 
         next();
       })
-      .catch((error) => console.log(error));
+      .catch((error) => {
+        throw new Error(error);
+      });
   }
 });
 
-// Adds routes and 404 page
+// Adds routes and 404/500 page
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
-app.use(_404Controller.get404page);
+app.get("/500", errorController.get500page);
+app.use(errorController.get404page);
 
 // Connects to DB and starts server
 mongoose

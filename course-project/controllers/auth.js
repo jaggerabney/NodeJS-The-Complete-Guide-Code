@@ -30,7 +30,7 @@ exports.getSignupPage = function (req, res, next) {
 
   message = message.length > 0 ? message[0] : null;
 
-  res.render("auth/signup", {
+  return res.render("auth/signup", {
     path: "/signup",
     title: "Signup",
     errorMessage: message,
@@ -125,7 +125,7 @@ exports.getResetPage = function (req, res, next) {
 
   message = message.length > 0 ? message[0] : null;
 
-  res.render("auth/reset", {
+  return res.render("auth/reset", {
     path: "/reset",
     title: "Reset Password",
     errorMessage: message,

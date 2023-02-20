@@ -45,8 +45,6 @@ router.post(
   check("email", "Email already exists.").custom((value, { req }) => {
     return User.findOne({ email: value }).then((user) => {
       if (user) {
-        console.log(user);
-
         return Promise.reject();
       }
     });
@@ -71,8 +69,6 @@ router.post(
   check("email", "No account found!").custom((value, { req }) => {
     return User.findOne({ email: value }).then((user) => {
       if (!user) {
-        console.log("No user found!");
-
         return Promise.reject();
       }
     });
