@@ -10,16 +10,16 @@ block content
     form.form(action=`/admin/${editing ? "edit-product" : "add-product"}`, method="POST")
         .form-control 
             label(for="title") Title 
-            input(type="text", name="title", value=`${product || hasError ? product.title : ""}`)#title 
+            input(class=`${validationErrors.find(error => error.param === "title") ? "invalid" : ""}`, type="text", name="title", value=`${product || hasError ? product.title : ""}`)#title 
         .form-control 
             label(for="imageUrl") Image URL 
-            input(type="text", name="imageUrl", value=`${product || hasError ? product.imageUrl : ""}`)#imageUrl 
+            input(class=`${validationErrors.find(error => error.param === "imageUrl") ? "invalid" : ""}`, type="text", name="imageUrl", value=`${product || hasError ? product.imageUrl : ""}`)#imageUrl 
         .form-control 
             label(for="price") Price 
-            input(type="number", name="price", step="0.01", value=`${product || hasError ? product.price : ""}`)#price 
+            input(class=`${validationErrors.find(error => error.param === "price") ? "invalid" : ""}`, type="number", name="price", step="0.01", value=`${product || hasError ? product.price : ""}`)#price 
         .form-control 
             label(for="description") Description 
-            textarea(name="description", rows="5")#description #{product || hasError ? product.description : ""}
+            textarea(class=`${validationErrors.find(error => error.param === "description") ? "invalid" : ""}`, name="description", rows="5")#description #{product || hasError ? product.description : ""}
         if editing 
             input(type="hidden", value=`${product._id}` name="productId")
         input(type="hidden", name="_csrf", value=`${csrfToken}`)
