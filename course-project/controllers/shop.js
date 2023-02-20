@@ -1,3 +1,6 @@
+const fs = require("fs");
+const path = require("path");
+
 const Product = require("../models/product");
 const Order = require("../models/order");
 const User = require("../models/user");
@@ -140,5 +143,21 @@ exports.getCheckoutPage = function (req, res, next) {
     title: "Checkout",
     path: "/checkout",
     isAuthenticated: req.session.isLoggedIn,
+  });
+};
+
+exports.getInvoice = function (req, res, next) {
+  const orderId = req.params.orderId;
+  const invoiceName = `invoice-${orderId}.pdf`;
+  const invoicePath = path.join("data", "invoices", invoiceName);
+
+  fs.readFile(invoicePath, (error, data) => {
+    if (error) {
+      return next(error);
+    }
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `inline; filename=${invoiceName}`);
+    res.send(data);
   });
 };

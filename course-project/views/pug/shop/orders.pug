@@ -10,4 +10,5 @@ block content
                     h1 #{order._id}
                     ul 
                         each product in order.products
-                            li #{product.data.title} (#{product.quantity})
+                            li #{product.data.title} (#{product.quantity}) - 
+                                a(href=`/orders/${order._id}`) Invoice
