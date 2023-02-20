@@ -7,6 +7,7 @@ const session = require("express-session");
 const mongoDBstore = require("connect-mongodb-session")(session);
 const csrf = require("csurf");
 const flash = require("connect-flash");
+const multer = require("multer");
 require("dotenv").config();
 
 // Project imports
@@ -15,6 +16,15 @@ const shopRoutes = require("./routes/shop");
 const authRoutes = require("./routes/auth");
 const errorController = require("./controllers/error");
 const User = require("./models/user");
+
+const multerOptions = multer.diskStorage({
+  destination: (req, file, callback) => {
+    callback(null, "images");
+  },
+  filename: (req, file, callback) => {
+    callback(null, `${new Date().toISOString()}-${file.originalname}`);
+  },
+});
 
 // Creates app
 const app = express();
@@ -50,6 +60,11 @@ app.set("views", "views/pug");
 
 // Adds body-parser; exposes public folder; manages sessions, CSRF protection, and flashing
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(
+  multer({
+    storage: multerOptions,
+  }).single("image")
+);
 app.use(express.static(path.join(__dirname, "public")));
 app.use(
   session({

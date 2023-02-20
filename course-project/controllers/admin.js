@@ -15,8 +15,11 @@ exports.getAddProductPage = function (req, res, next) {
 };
 
 exports.postAddProductPage = function (req, res, next) {
-  const { title, imageUrl, description, price } = req.body;
+  const { title, description, price } = req.body;
+  const image = req.file;
   const errors = validationResult(req);
+
+  console.log(image);
 
   if (!errors.isEmpty()) {
     return res.status(422).render("admin/edit-product", {
@@ -27,7 +30,7 @@ exports.postAddProductPage = function (req, res, next) {
       errorMessage: errors.array()[0].msg,
       product: {
         title,
-        imageUrl,
+        image,
         price,
         description,
       },
@@ -37,7 +40,7 @@ exports.postAddProductPage = function (req, res, next) {
 
   const product = new Product({
     title,
-    imageUrl,
+    image,
     description,
     price,
     userId: req.session.user._id,

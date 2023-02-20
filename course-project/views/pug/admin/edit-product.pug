@@ -7,13 +7,16 @@ block styles
 block content 
     if errorMessage 
         div.message.error-message #{errorMessage}
-    form.form(action=`/admin/${editing ? "edit-product" : "add-product"}`, method="POST")
+    form.form(action=`/admin/${editing ? "edit-product" : "add-product"}`, method="POST", enctype="multipart/form-data")
         .form-control 
             label(for="title") Title 
             input(class=`${validationErrors.find(error => error.param === "title") ? "invalid" : ""}`, type="text", name="title", value=`${product || hasError ? product.title : ""}`)#title 
+        //- .form-control 
+        //-     label(for="imageUrl") Image URL 
+        //-     input(class=`${validationErrors.find(error => error.param === "imageUrl") ? "invalid" : ""}`, type="text", name="imageUrl", value=`${product || hasError ? product.imageUrl : ""}`)#imageUrl 
         .form-control 
-            label(for="imageUrl") Image URL 
-            input(class=`${validationErrors.find(error => error.param === "imageUrl") ? "invalid" : ""}`, type="text", name="imageUrl", value=`${product || hasError ? product.imageUrl : ""}`)#imageUrl 
+            label(for="image") Image
+            input(type="file", name="image", id="image")
         .form-control 
             label(for="price") Price 
             input(class=`${validationErrors.find(error => error.param === "price") ? "invalid" : ""}`, type="number", name="price", step="0.01", value=`${product || hasError ? product.price : ""}`)#price 
