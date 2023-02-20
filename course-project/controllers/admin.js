@@ -2,6 +2,7 @@ const { validationResult } = require("express-validator/check");
 
 const Product = require("../models/product");
 const generateError = require("../util/generateError");
+const deleteFile = require("../util/file");
 
 exports.getAddProductPage = function (req, res, next) {
   return res.render("admin/edit-product", {
@@ -126,6 +127,8 @@ exports.postEditProductPage = function (req, res, body) {
     product.price = price;
     product.description = description;
     if (image) {
+      deleteFile(product.imageUrl);
+
       product.imageUrl = image.path;
     }
 
@@ -136,16 +139,29 @@ exports.postEditProductPage = function (req, res, body) {
   });
 };
 
-exports.postDeleteProductPage = function (req, res, body) {
+exports.postDeleteProductPage = function (req, res, next) {
   const { productId } = req.body;
 
-  Product.deleteOne({ _id: productId, userId: req.user._id })
-    .then((error, result) => {
-      if (error.deletedCount < 1) {
-        req.flash("error", "Products not belonging to you cannot be deleted.");
+  Product.findById(productId)
+    .then((product) => {
+      if (!product) {
+        return next(new Error("Product not found!"));
       }
 
-      return res.redirect("/admin/products");
+      deleteFile(product.imageUrl.substring(1));
+
+      return Product.deleteOne({ _id: productId, userId: req.user._id }).then(
+        (error, result) => {
+          if (error.deletedCount < 1) {
+            req.flash(
+              "error",
+              "Products not belonging to you cannot be deleted."
+            );
+          }
+
+          return res.redirect("/admin/products");
+        }
+      );
     })
     .catch(() => next(generateError("Product deletion failed!", 500)));
 };
