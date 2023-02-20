@@ -34,7 +34,7 @@ exports.postAddProductPage = function (req, res, next) {
     });
   }
 
-  const imageUrl = image.path;
+  const imageUrl = "/" + image.path;
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
