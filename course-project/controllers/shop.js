@@ -151,13 +151,35 @@ exports.getInvoice = function (req, res, next) {
   const invoiceName = `invoice-${orderId}.pdf`;
   const invoicePath = path.join("data", "invoices", invoiceName);
 
-  fs.readFile(invoicePath, (error, data) => {
-    if (error) {
-      return next(error);
-    }
+  Order.findById(orderId)
+    .then((order) => {
+      if (!order) {
+        return next(new Error("No order found!"));
+      }
 
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `inline; filename=${invoiceName}`);
-    res.send(data);
-  });
+      if (order.user.userId.toString() === req.user._id.toString()) {
+        // fs.readFile(invoicePath, (error, data) => {
+        //   if (error) {
+        //     return next(error);
+        //   }
+
+        //   res.setHeader("Content-Type", "application/pdf");
+        //   res.setHeader(
+        //     "Content-Disposition",
+        //     `inline; filename=${invoiceName}`
+        //   );
+        //   res.send(data);
+        // });
+
+        const file = fs.createReadStream(invoicePath);
+
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader("Content-Disposition", `inline; filename=${invoiceName}`);
+
+        file.pipe(res);
+      } else {
+        return next(new Error("Not authorized to access invoice!"));
+      }
+    })
+    .catch((error) => next(error));
 };
