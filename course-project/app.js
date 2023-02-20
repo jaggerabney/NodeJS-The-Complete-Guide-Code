@@ -96,7 +96,10 @@ app.use(authRoutes);
 app.get("/500", errorController.get500page);
 app.use(errorController.get404page);
 app.use((error, req, res, next) => {
-  return res.redirect("/500");
+  return res.render("errors/500", {
+    title: "500 - Internal server error",
+    path: "",
+  });
 });
 
 // Connects to DB and starts server
