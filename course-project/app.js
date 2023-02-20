@@ -17,7 +17,7 @@ const authRoutes = require("./routes/auth");
 const errorController = require("./controllers/error");
 const User = require("./models/user");
 
-const multerOptions = multer.diskStorage({
+const storage = multer.diskStorage({
   destination: (req, file, callback) => {
     callback(null, "images");
   },
@@ -25,6 +25,18 @@ const multerOptions = multer.diskStorage({
     callback(null, `${new Date().toISOString()}-${file.originalname}`);
   },
 });
+
+const fileFilter = (req, file, callback) => {
+  if (
+    file.mimetype === "image/png" ||
+    file.mimetype === "image/jpg" ||
+    file.mimetype === "image/jpeg"
+  ) {
+    callback(null, true);
+  } else {
+    callback(null, false);
+  }
+};
 
 // Creates app
 const app = express();
@@ -60,11 +72,7 @@ app.set("views", "views/pug");
 
 // Adds body-parser; exposes public folder; manages sessions, CSRF protection, and flashing
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(
-  multer({
-    storage: multerOptions,
-  }).single("image")
-);
+app.use(multer({ storage, fileFilter }).single("image"));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(
   session({
