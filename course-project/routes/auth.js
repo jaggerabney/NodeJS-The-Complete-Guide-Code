@@ -16,7 +16,7 @@ router.post(
   "/login",
   check("email", "Entered email is not a valid email")
     .isEmail()
-    .normalizeEmail(),
+    .normalizeEmail({ gmail_remove_dots: false }),
   body("password", "Invalid email or password.")
     .custom((value, { req }) => {
       return User.findOne({ email: req.body.email })
@@ -41,7 +41,7 @@ router.post(
   "/signup",
   check("email", "Entered email is not a valid email.")
     .isEmail()
-    .normalizeEmail(),
+    .normalizeEmail({ gmail_remove_dots: false }),
   check("email", "Email already exists.").custom((value, { req }) => {
     return User.findOne({ email: value }).then((user) => {
       if (user) {

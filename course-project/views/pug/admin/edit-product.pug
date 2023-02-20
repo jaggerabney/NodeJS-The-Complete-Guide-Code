@@ -5,19 +5,21 @@ block styles
     link(rel="stylesheet", href="/css/product.css")
 
 block content 
+    if errorMessage 
+        div.message.error-message #{errorMessage}
     form.form(action=`/admin/${editing ? "edit-product" : "add-product"}`, method="POST")
         .form-control 
             label(for="title") Title 
-            input(type="text", name="title", value=`${product ? product.title : ""}`)#title 
+            input(type="text", name="title", value=`${product || hasError ? product.title : ""}`)#title 
         .form-control 
             label(for="imageUrl") Image URL 
-            input(type="text", name="imageUrl", value=`${product ? product.imageUrl : ""}`)#imageUrl 
+            input(type="text", name="imageUrl", value=`${product || hasError ? product.imageUrl : ""}`)#imageUrl 
         .form-control 
             label(for="price") Price 
-            input(type="number", name="price", step="0.01", value=`${product ? product.price : ""}`)#price 
+            input(type="number", name="price", step="0.01", value=`${product || hasError ? product.price : ""}`)#price 
         .form-control 
             label(for="description") Description 
-            textarea(name="description", rows="5")#description #{product ? product.description : ""}
+            textarea(name="description", rows="5")#description #{product || hasError ? product.description : ""}
         if editing 
             input(type="hidden", value=`${product._id}` name="productId")
         input(type="hidden", name="_csrf", value=`${csrfToken}`)
