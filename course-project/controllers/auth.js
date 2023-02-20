@@ -13,7 +13,7 @@ exports.getLoginPage = function (req, res, next) {
 
   message = message.length > 0 ? message[0] : null;
 
-  res.render("auth/login", {
+  return res.render("auth/login", {
     title: "Login",
     path: "/login",
     errorMessage: message,
@@ -192,7 +192,7 @@ exports.getNewPasswordPage = function (req, res, next) {
 
       message = message.length > 0 ? message[0] : null;
 
-      res.render("auth/new-password", {
+      return res.render("auth/new-password", {
         path: "/new-password",
         title: "Create New Password",
         errorMessage: message,
@@ -204,13 +204,19 @@ exports.getNewPasswordPage = function (req, res, next) {
 };
 
 exports.postNewPasswordPage = function (req, res, next) {
-  const { newPassword, userId, passwordToken } = req.body;
+  const { newPassword, confirmNewPassword, userId, passwordToken } = req.body;
 
   User.findOne({
     resetToken: passwordToken,
     resetTokenExpiration: { $gt: Date.now() },
     _id: userId,
   }).then((user) => {
+    if (newPassword !== confirmNewPassword) {
+      req.flash("error", "Passwords do not match!");
+
+      return res.redirect("/login");
+    }
+
     return bcrypt
       .hash(newPassword, Number(process.env.SALT_VALUE))
       .then((hashedPassword) => {
