@@ -1,10 +1,13 @@
 const fs = require("fs");
 const path = require("path");
 
+const pdfDocument = require("pdfkit");
+
 const Product = require("../models/product");
 const Order = require("../models/order");
 const User = require("../models/user");
 const generateError = require("../util/generateError");
+const { PromiseProvider } = require("mongoose");
 
 exports.getProductListPage = function (req, res, next) {
   Product.find()
@@ -148,8 +151,6 @@ exports.getCheckoutPage = function (req, res, next) {
 
 exports.getInvoice = function (req, res, next) {
   const orderId = req.params.orderId;
-  const invoiceName = `invoice-${orderId}.pdf`;
-  const invoicePath = path.join("data", "invoices", invoiceName);
 
   Order.findById(orderId)
     .then((order) => {
@@ -158,25 +159,35 @@ exports.getInvoice = function (req, res, next) {
       }
 
       if (order.user.userId.toString() === req.user._id.toString()) {
-        // fs.readFile(invoicePath, (error, data) => {
-        //   if (error) {
-        //     return next(error);
-        //   }
-
-        //   res.setHeader("Content-Type", "application/pdf");
-        //   res.setHeader(
-        //     "Content-Disposition",
-        //     `inline; filename=${invoiceName}`
-        //   );
-        //   res.send(data);
-        // });
-
-        const file = fs.createReadStream(invoicePath);
+        const invoiceName = `invoice-${orderId}.pdf`;
+        const invoicePath = path.join("data", "invoices", invoiceName);
+        const pdf = new pdfDocument();
+        let totalPrice = 0;
 
         res.setHeader("Content-Type", "application/pdf");
         res.setHeader("Content-Disposition", `inline; filename=${invoiceName}`);
 
-        file.pipe(res);
+        pdf.pipe(fs.createWriteStream(invoicePath));
+        pdf.pipe(res);
+
+        pdf.fontSize(26).text("Invoice", { underline: true });
+        pdf.fontSize(14).text("\n");
+
+        order.products.forEach((product) => {
+          const totalProductPrice = product.quantity * product.data.price;
+          totalPrice += totalProductPrice;
+
+          pdf
+            .fontSize(14)
+            .text(
+              `${product.data.title} - ${product.quantity} ($${totalProductPrice})\n`
+            );
+        });
+
+        pdf.fontSize(14).text("\n");
+        pdf.fontSize(20).text(`Total price: $${totalPrice}`);
+
+        pdf.end();
       } else {
         return next(new Error("Not authorized to access invoice!"));
       }

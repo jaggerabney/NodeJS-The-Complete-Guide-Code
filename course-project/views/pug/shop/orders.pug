@@ -7,8 +7,9 @@ block content
         ul
             each order in orders
                 li 
-                    h1 #{order._id}
+                    h1 #{order._id} 
                     ul 
                         each product in order.products
-                            li #{product.data.title} (#{product.quantity}) - 
-                                a(href=`/orders/${order._id}`) Invoice
+                            li #{product.data.title} (#{product.quantity})
+                    a(href=`/orders/${order._id}`) Invoice
+
