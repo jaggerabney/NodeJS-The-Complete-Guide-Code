@@ -17,9 +17,25 @@ exports.getAddProductPage = function (req, res, next) {
 exports.postAddProductPage = function (req, res, next) {
   const { title, description, price } = req.body;
   const image = req.file;
-  const errors = validationResult(req);
 
-  console.log(image);
+  if (!image) {
+    return res.status(422).render("admin/edit-product", {
+      title: "Add Product",
+      path: "/admin/add-product",
+      editing: false,
+      hasError: true,
+      errorMessage: "Attached file is not of a valid file type!",
+      product: {
+        title,
+        price,
+        description,
+      },
+      validationErrors: [],
+    });
+  }
+
+  const imageUrl = image.path;
+  const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
     return res.status(422).render("admin/edit-product", {
@@ -30,7 +46,6 @@ exports.postAddProductPage = function (req, res, next) {
       errorMessage: errors.array()[0].msg,
       product: {
         title,
-        image,
         price,
         description,
       },
@@ -40,7 +55,7 @@ exports.postAddProductPage = function (req, res, next) {
 
   const product = new Product({
     title,
-    image,
+    imageUrl,
     description,
     price,
     userId: req.session.user._id,
@@ -79,7 +94,8 @@ exports.getEditProductPage = function (req, res, next) {
 };
 
 exports.postEditProductPage = function (req, res, body) {
-  const { title, imageUrl, price, description, productId } = req.body;
+  const { title, price, description, productId } = req.body;
+  const image = req.file;
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
@@ -91,7 +107,6 @@ exports.postEditProductPage = function (req, res, body) {
       errorMessage: errors.array()[0].msg,
       product: {
         title,
-        imageUrl,
         price,
         description,
         _id: productId,
@@ -110,7 +125,9 @@ exports.postEditProductPage = function (req, res, body) {
     product.title = title;
     product.price = price;
     product.description = description;
-    product.imageUrl = imageUrl;
+    if (image) {
+      product.imageUrl = image.path;
+    }
 
     return product
       .save()
