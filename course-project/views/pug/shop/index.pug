@@ -23,7 +23,15 @@ block content
                                 input(type="hidden", name="_csrf", value=`${csrfToken}`)
                                 button.btn(type="submit") Add to Cart
         section.pagination 
-            a(href="/?page=1") 1
-            a(href="/?page=2") 2
+            if currentPage > 2
+                a(href="/?page=1") <<
+            if hasPreviousPage 
+                a(href=`/?page=${previousPage}`) <
+            a(href=`/?page=${currentPage}`) #{currentPage}
+            if hasNextPage 
+                a(href=`/?page=${nextPage}`) > 
+            if currentPage < finalPage - 1
+                a(href=`/?page=${finalPage}`) >> 
+
     else 
         h1 No products!
