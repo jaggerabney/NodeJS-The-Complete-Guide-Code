@@ -13,7 +13,7 @@ block content
                     header.card__header 
                         h1.product__title #{product.title}
                     .card__image 
-                        img(src="#{product.imageUrl}")
+                        img(src=`${product.imageUrl}`)
                     .card__content
                         h2.product__price #{new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(product.price)}
                         p.product__description #{product.description}

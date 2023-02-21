@@ -6,12 +6,12 @@ block styles
 block content 
     if products.length > 0
         .grid 
-            each product in products 
-                article.card.product-item 
+            each product in products  
+               article.card.product-item 
                     header.card__header 
                         h1.product__title #{product.title}
                     .card__image 
-                        img(src="#{product.imageUrl}")
+                        img(src=`${product.imageUrl}`)
                     .card__content
                         h2.product__price #{new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(product.price)}
                         p.product__description #{product.description}
