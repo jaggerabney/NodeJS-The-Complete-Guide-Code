@@ -7,7 +7,8 @@ const Product = require("../models/product");
 const Order = require("../models/order");
 const User = require("../models/user");
 const generateError = require("../util/generateError");
-const { PromiseProvider } = require("mongoose");
+
+const ITEMS_PER_PAGE = 2;
 
 exports.getProductListPage = function (req, res, next) {
   Product.find()
@@ -44,12 +45,29 @@ exports.getProductPage = function (req, res, next) {
 };
 
 exports.getIndexPage = function (req, res, next) {
+  const page = req.query.page;
+  let totalItems;
+
   Product.find()
+    .countDocuments()
+    .then((numProducts) => {
+      totalItems = numProducts;
+
+      return Product.find()
+        .skip((page - 1) * ITEMS_PER_PAGE)
+        .limit(ITEMS_PER_PAGE);
+    })
     .then((products) => {
       res.render("shop/index", {
         products: products ? products : [],
         title: "Shop",
         path: "/",
+        totalProducts: totalItems,
+        hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+        hasPreviousPage: page > 1,
+        nextPage: page + 1,
+        previousPage: page - 1,
+        finalPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
       });
     })
     .catch(() => next(generateError("Couldn't get products!", 500)));
