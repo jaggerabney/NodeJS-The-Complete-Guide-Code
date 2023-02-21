@@ -1,15 +1,18 @@
 extends ../layouts/main-layout.pug 
 
+block styles 
+    link(rel="stylesheet", href="/css/orders.css")
+
 block content 
     if orders.length <= 0
         h1 No orders! 
     else 
-        ul
+        ul.orders
             each order in orders
-                li 
-                    h1 #{order._id} 
-                    ul 
+                li.orders__item
+                    h1 Order - #{order._id} 
+                    ul.orders__products
                         each product in order.products
-                            li #{product.data.title} (#{product.quantity})
+                            li.orders__products-item #{product.data.title} (#{product.quantity})
                     a(href=`/orders/${order._id}`) Invoice
 
