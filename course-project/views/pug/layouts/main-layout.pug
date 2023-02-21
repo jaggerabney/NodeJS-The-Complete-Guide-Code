@@ -38,3 +38,15 @@ html(lang="en")
 
         main
             block content
+
+        if path === "/" || path === "/products" || path === "/admin/products"
+            section.pagination 
+                if currentPage > 2
+                    a(href=`${path}?page=1`) <<
+                if hasPreviousPage 
+                    a(href=`${path}?page=${previousPage}`) <
+                a(href=`${path}?page=${currentPage}`) #{currentPage}
+                if hasNextPage 
+                    a(href=`${path}?page=${nextPage}`) >
+                if currentPage < finalPage - 1
+                    a(href=`${path}?page=${finalPage}`) >>

@@ -1,8 +1,11 @@
 const { validationResult } = require("express-validator/check");
+require("dotenv").config();
 
 const Product = require("../models/product");
 const generateError = require("../util/generateError");
 const deleteFile = require("../util/file");
+
+const ITEMS_PER_PAGE = Number(process.env.ITEMS_PER_PAGE);
 
 exports.getAddProductPage = function (req, res, next) {
   return res.render("admin/edit-product", {
@@ -167,16 +170,34 @@ exports.postDeleteProductPage = function (req, res, next) {
 };
 
 exports.getProductsPage = function (req, res, next) {
+  const page = req.query.page ? Number(req.query.page) : 1;
   let message = req.flash("error");
+  let totalItems;
 
   message = message.length > 0 ? message[0] : null;
 
-  Product.find({ userId: req.user._id }).then((products) => {
-    return res.render("admin/products", {
-      products: products ? products : [],
-      title: "Admin Products",
-      path: "/admin/products",
-      errorMessage: message,
-    });
-  });
+  Product.find()
+    .countDocuments()
+    .then((numProducts) => {
+      totalItems = numProducts;
+
+      return Product.find()
+        .skip((page - 1) * ITEMS_PER_PAGE)
+        .limit(ITEMS_PER_PAGE);
+    })
+    .then((products) => {
+      res.render("admin/products", {
+        products: products ? products : [],
+        title: "Admin Products",
+        path: "/admin/products",
+        errorMessage: message,
+        currentPage: page,
+        hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+        hasPreviousPage: page > 1,
+        nextPage: page + 1,
+        previousPage: page - 1,
+        finalPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
+      });
+    })
+    .catch(() => next(generateError("Couldn't get products!", 500)));
 };

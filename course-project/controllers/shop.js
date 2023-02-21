@@ -2,22 +2,39 @@ const fs = require("fs");
 const path = require("path");
 
 const pdfDocument = require("pdfkit");
+require("dotenv").config();
 
 const Product = require("../models/product");
 const Order = require("../models/order");
 const User = require("../models/user");
 const generateError = require("../util/generateError");
 
-const ITEMS_PER_PAGE = 2;
+const ITEMS_PER_PAGE = Number(process.env.ITEMS_PER_PAGE);
 
 exports.getProductListPage = function (req, res, next) {
+  const page = req.query.page ? Number(req.query.page) : 1;
+  let totalItems;
+
   Product.find()
+    .countDocuments()
+    .then((numProducts) => {
+      totalItems = numProducts;
+
+      return Product.find()
+        .skip((page - 1) * ITEMS_PER_PAGE)
+        .limit(ITEMS_PER_PAGE);
+    })
     .then((products) => {
       res.render("shop/product-list", {
         products: products ? products : [],
         title: "All Products",
         path: "/products",
-        isAuthenticated: req.session.isLoggedIn,
+        currentPage: page,
+        hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+        hasPreviousPage: page > 1,
+        nextPage: page + 1,
+        previousPage: page - 1,
+        finalPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
       });
     })
     .catch(() => next(generateError("Couldn't get products!", 500)));
@@ -62,7 +79,6 @@ exports.getIndexPage = function (req, res, next) {
         products: products ? products : [],
         title: "Shop",
         path: "/",
-        totalProducts: totalItems,
         currentPage: page,
         hasNextPage: ITEMS_PER_PAGE * page < totalItems,
         hasPreviousPage: page > 1,
