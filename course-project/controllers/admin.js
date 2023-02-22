@@ -142,8 +142,8 @@ exports.postEditProductPage = function (req, res, body) {
   });
 };
 
-exports.postDeleteProductPage = function (req, res, next) {
-  const { productId } = req.body;
+exports.deleteProduct = function (req, res, next) {
+  const { productId } = req.params;
 
   Product.findById(productId)
     .then((product) => {
@@ -162,11 +162,17 @@ exports.postDeleteProductPage = function (req, res, next) {
             );
           }
 
-          return res.redirect("/admin/products");
+          res.status(200).json({
+            message: "Success!",
+          });
         }
       );
     })
-    .catch(() => next(generateError("Product deletion failed!", 500)));
+    .catch(() =>
+      res.status(500).json({
+        message: "Product deletion failed!",
+      })
+    );
 };
 
 exports.getProductsPage = function (req, res, next) {
