@@ -41,12 +41,8 @@ html(lang="en")
 
         if path === "/" || path === "/products" || path === "/admin/products"
             section.pagination 
-                if currentPage > 2
-                    a(href=`${path}?page=1`) <<
-                if hasPreviousPage 
-                    a(href=`${path}?page=${previousPage}`) <
+                a(class=`${currentPage > 2 ? "enabled" : "disabled"}`, href=`${path}?page=1`) <<
+                a(class=`${hasPreviousPage ? "enabled" : "disabled"}`, href=`${path}?page=${previousPage}`) <
                 a(href=`${path}?page=${currentPage}`) #{currentPage}
-                if hasNextPage 
-                    a(href=`${path}?page=${nextPage}`) >
-                if currentPage < finalPage - 1
-                    a(href=`${path}?page=${finalPage}`) >>
+                a(class=`${hasNextPage ? "enabled" : "disabled"}`, href=`${path}?page=${nextPage}`) >
+                a(class=`${currentPage < finalPage - 1 ? "enabled" : "disabled"}`, href=`${path}?page=${finalPage}`) >>

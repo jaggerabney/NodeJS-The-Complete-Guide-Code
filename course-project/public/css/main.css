@@ -261,6 +261,12 @@ form {
   margin: 0 0.5rem;
 }
 
+.pagination .disabled {
+  border: 1px solid #ccc;
+  color: #ccc;
+  pointer-events: none;
+}
+
 .pagination a:hover,
 .pagination a:active {
   background: #00695c;

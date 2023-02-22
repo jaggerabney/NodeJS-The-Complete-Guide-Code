@@ -22,10 +22,7 @@ const storage = multer.diskStorage({
     callback(null, "images");
   },
   filename: (req, file, callback) => {
-    callback(
-      null,
-      `${new Date().toISOString().replace(":", "-")}-${file.originalname}`
-    );
+    callback(null, `${new Date().getTime()}-${file.originalname}`);
   },
 });
 
