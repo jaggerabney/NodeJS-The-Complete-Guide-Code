@@ -152,14 +152,12 @@ exports.postOrderPage = function (req, res, next) {
         products: products,
       });
 
-      order.save();
+      return order.save();
     })
     .then(() =>
       User.findById(req.session.user._id).then((user) => user.clearCart())
     )
-    .then(() => {
-      res.redirect("/orders");
-    })
+    .then(() => res.redirect("/checkout"))
     .catch(() => next(generateError("Couldn't post order!", 500)));
 };
 
@@ -177,11 +175,29 @@ exports.getOrdersPage = function (req, res, next) {
 };
 
 exports.getCheckoutPage = function (req, res, next) {
-  res.render("shop/checkout", {
-    title: "Checkout",
-    path: "/checkout",
-    isAuthenticated: req.session.isLoggedIn,
-  });
+  Order.find({ "user.userId": req.session.user._id })
+    .sort({ _id: -1 })
+    .then((orders) => {
+      const order = orders[0];
+      const products = order.products;
+      let total = 0;
+
+      products.forEach(
+        (product) => (total += product.quantity * product.data.price)
+      );
+
+      return res.render("shop/checkout", {
+        title: "Checkout",
+        path: "/checkout",
+        isAuthenticated: req.session.isLoggedIn,
+        products,
+        total: new Intl.NumberFormat("en-us", {
+          style: "currency",
+          currency: "USD",
+        }).format(total),
+      });
+    })
+    .catch(() => next(generateError("Couldn't get cart!", 500)));
 };
 
 exports.getInvoice = function (req, res, next) {

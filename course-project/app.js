@@ -120,6 +120,8 @@ app.use(authRoutes);
 app.get("/500", errorController.get500page);
 app.use(errorController.get404page);
 app.use((error, req, res, next) => {
+  console.log(error);
+
   return res.render("errors/500", {
     title: "500 - Internal server error",
     path: "",
