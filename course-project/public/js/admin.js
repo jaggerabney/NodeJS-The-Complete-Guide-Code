@@ -2,6 +2,7 @@ function deleteProduct(button) {
   const [productId, csrfToken] = Array.from(
     button.parentNode.getElementsByTagName("input")
   ).map((element) => element.value);
+  const productElement = button.closest("article");
 
   fetch(`/admin/delete/${productId}`, {
     method: "DELETE",
@@ -10,6 +11,6 @@ function deleteProduct(button) {
     },
   })
     .then((result) => result.json())
-    .then((data) => console.log(data))
+    .then(() => productElement.remove())
     .catch((error) => console.log(error));
 }
