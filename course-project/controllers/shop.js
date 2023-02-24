@@ -3,6 +3,7 @@ const path = require("path");
 
 const pdfDocument = require("pdfkit");
 require("dotenv").config();
+const stripe = require("stripe")(process.env.STRIPE_API_KEY);
 
 const Product = require("../models/product");
 const Order = require("../models/order");
@@ -150,14 +151,15 @@ exports.postOrderPage = function (req, res, next) {
           userId: req.session.user._id,
         },
         products: products,
+        createdAt: new Date().getTime(),
       });
 
-      return order.save();
+      order.save();
     })
     .then(() =>
       User.findById(req.session.user._id).then((user) => user.clearCart())
     )
-    .then(() => res.redirect("/checkout"))
+    .then(() => res.redirect("/orders"))
     .catch(() => next(generateError("Couldn't post order!", 500)));
 };
 
@@ -175,18 +177,41 @@ exports.getOrdersPage = function (req, res, next) {
 };
 
 exports.getCheckoutPage = function (req, res, next) {
-  Order.find({ "user.userId": req.session.user._id })
-    .sort({ _id: -1 })
-    .then((orders) => {
-      const order = orders[0];
-      const products = order.products;
-      let total = 0;
+  let products, total;
+
+  req.user
+    .populate("cart.items.productId")
+    .then((data) => {
+      products = data.cart.items;
+      total = 0;
 
       products.forEach(
-        (product) => (total += product.quantity * product.data.price)
+        (product) => (total += product.quantity * product.productId.price)
       );
 
-      return res.render("shop/checkout", {
+      return stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: products.map((product) => {
+          return {
+            quantity: product.quantity,
+            price_data: {
+              currency: "usd",
+              unit_amount: product.productId.price * 100,
+              product_data: {
+                name: product.productId.title,
+                description: product.productId.description,
+              },
+            },
+          };
+        }),
+        mode: "payment",
+        success_url:
+          req.protocol + "://" + req.get("host") + "/checkout/success",
+        cancel_url: req.protocol + "://" + req.get("host") + "/checkout/cancel",
+      });
+    })
+    .then((session) =>
+      res.render("shop/checkout", {
         title: "Checkout",
         path: "/checkout",
         isAuthenticated: req.session.isLoggedIn,
@@ -195,8 +220,9 @@ exports.getCheckoutPage = function (req, res, next) {
           style: "currency",
           currency: "USD",
         }).format(total),
-      });
-    })
+        sessionId: session.id,
+      })
+    )
     .catch(() => next(generateError("Couldn't get cart!", 500)));
 };
 

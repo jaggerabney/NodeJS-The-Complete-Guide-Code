@@ -26,6 +26,10 @@ const orderSchema = new Schema({
       ref: "User",
     },
   },
+  createdAt: {
+    type: Number,
+    required: true,
+  },
 });
 
 module.exports = mongoose.model("Order", orderSchema);
