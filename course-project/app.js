@@ -17,6 +17,7 @@ const authRoutes = require("./routes/auth");
 const errorController = require("./controllers/error");
 const User = require("./models/user");
 
+// Multer configuration options objects
 const storage = multer.diskStorage({
   destination: (req, file, callback) => {
     callback(null, "images");

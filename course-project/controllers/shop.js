@@ -134,6 +134,8 @@ exports.postCartDeletePage = function (req, res, next) {
 };
 
 exports.postOrderPage = function (req, res, next) {
+  let order;
+
   User.findById(req.session.user._id)
     .populate("cart.items.productId")
     .then((user) => {
@@ -144,7 +146,7 @@ exports.postOrderPage = function (req, res, next) {
         };
       });
 
-      const order = new Order({
+      order = new Order({
         user: {
           email: req.session.user.email,
           userId: req.session.user._id,
@@ -157,7 +159,7 @@ exports.postOrderPage = function (req, res, next) {
     .then(() =>
       User.findById(req.session.user._id).then((user) => user.clearCart())
     )
-    .then(() => res.redirect("/checkout"))
+    .then(() => res.redirect(`/checkout/${order._id}`))
     .catch(() => next(generateError("Couldn't post order!", 500)));
 };
 
@@ -175,10 +177,10 @@ exports.getOrdersPage = function (req, res, next) {
 };
 
 exports.getCheckoutPage = function (req, res, next) {
-  Order.find({ "user.userId": req.session.user._id })
-    .sort({ _id: -1 })
-    .then((orders) => {
-      const order = orders[0];
+  const orderId = req.params.orderId;
+
+  Order.findById(orderId)
+    .then((order) => {
       const products = order.products;
       let total = 0;
 
