@@ -18,7 +18,7 @@ router.put(
           }
         });
       })
-      .normalizeEmail(),
+      .normalizeEmail({ gmail_remove_dots: false }),
     body("password", "Password must be at least five characters long.")
       .trim()
       .isLength({
@@ -28,5 +28,7 @@ router.put(
   ],
   authController.signup
 );
+
+router.post("/login", authController.login);
 
 module.exports = router;
