@@ -21,7 +21,7 @@ router.put(
       .normalizeEmail(),
     body("password", "Password must be at least five characters long.")
       .trim()
-      .length({
+      .isLength({
         min: 5,
       }),
     body("name", "Name must not be empty!").trim().not().isEmpty(),
