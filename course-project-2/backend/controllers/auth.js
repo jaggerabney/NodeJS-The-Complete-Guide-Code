@@ -4,41 +4,36 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const User = require("../models/user");
+const {
+  throwCustomError,
+  throwError,
+  hasNoValidationErrors,
+} = require("../util/error");
 
 exports.signup = function (req, res, next) {
-  const errors = validationResult(req);
+  if (hasNoValidationErrors(validationResult(req))) {
+    const { email, name, password } = req.body;
 
-  if (!errors.isEmpty()) {
-    const error = new Error("Validation failed!");
-    error.statusCode = 422;
-    error.data = errors.array();
+    bcrypt
+      .hash(password, 12)
+      .then((hashedPassword) => {
+        const user = new User({
+          email,
+          name,
+          password: hashedPassword,
+        });
 
-    throw error;
-  }
-
-  const { email, name, password } = req.body;
-
-  bcrypt
-    .hash(password, 12)
-    .then((hashedPassword) => {
-      const user = new User({
-        email,
-        name,
-        password: hashedPassword,
+        return user.save();
+      })
+      .then((result) => {
+        return res
+          .status(201)
+          .json({ message: "User created!", userId: result._id });
+      })
+      .catch((error) => {
+        throwError(error);
       });
-
-      return user.save();
-    })
-    .then((result) => {
-      res.status(201).json({ message: "User created!", userId: result._id });
-    })
-    .catch((error) => {
-      if (!error.statusCode) {
-        error.statusCode = 500;
-      }
-
-      next(error);
-    });
+  }
 };
 
 exports.login = function (req, res, next) {
@@ -48,10 +43,7 @@ exports.login = function (req, res, next) {
   User.findOne({ email })
     .then((user) => {
       if (!user) {
-        const error = new Error("Invalid email or password!");
-        error.statusCode = 401;
-
-        throw error;
+        throwCustomError("Invalid email or password!", 401);
       }
 
       loadedUser = user;
@@ -60,10 +52,7 @@ exports.login = function (req, res, next) {
     })
     .then((passwordsMatch) => {
       if (!passwordsMatch) {
-        const error = new Error("Invalid email or password!");
-        error.statusCode = 401;
-
-        throw error;
+        throwCustomError("Invalid email or password!", 401);
       }
 
       const token = jwt.sign(
@@ -75,13 +64,9 @@ exports.login = function (req, res, next) {
         { expiresIn: "1h" }
       );
 
-      res.status(200).json({ token, userId: loadedUser._id.toString() });
+      return res.status(200).json({ token, userId: loadedUser._id.toString() });
     })
     .catch((error) => {
-      if (!error.statusCode) {
-        error.statusCode = 500;
-      }
-
-      next(error);
+      throwError(error);
     });
 };
