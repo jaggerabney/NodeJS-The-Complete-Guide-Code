@@ -2,8 +2,10 @@ const fs = require("fs");
 const path = require("path");
 
 const { validationResult } = require("express-validator");
+const mongoose = require("mongoose");
 
 const Post = require("../models/post");
+const User = require("../models/user");
 
 exports.getPosts = function (req, res, next) {
   const currentPage = req.query.page || 1;
@@ -59,6 +61,8 @@ exports.getPost = function (req, res, next) {
 };
 
 exports.createPost = function (req, res, next) {
+  console.log(req.userId);
+
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
@@ -77,24 +81,37 @@ exports.createPost = function (req, res, next) {
 
   const { title, content } = req.body;
   const imageUrl = req.file.path;
+  let creator;
 
   const post = new Post({
     title,
     imageUrl,
     content,
-    creator: {
-      name: "Jagger",
-    },
+    creator: req.userId,
   });
 
   post
     .save()
-    .then((result) => {
-      console.log(result);
+    .then(() => {
+      return User.findById(req.userId);
+    })
+    .then((user) => {
+      console.log(user);
 
+      creator = user;
+
+      user.posts.push(post);
+
+      return user.save();
+    })
+    .then(() => {
       res.status(201).json({
         message: "Post created successfully!",
-        post: result,
+        post,
+        creator: {
+          _id: creator._id,
+          name: creator.name,
+        },
       });
     })
     .catch((error) => {
