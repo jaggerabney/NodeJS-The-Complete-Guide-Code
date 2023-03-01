@@ -82,11 +82,22 @@ class Feed extends Component {
 
   statusUpdateHandler = (event) => {
     event.preventDefault();
-    fetch("URL")
+
+    fetch("http://localhost:8080/feed/status", {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${this.props.token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        status: this.state.status,
+      }),
+    })
       .then((res) => {
         if (res.status !== 200 && res.status !== 201) {
           throw new Error("Can't update status!");
         }
+
         return res.json();
       })
       .then((resData) => {
@@ -182,6 +193,8 @@ class Feed extends Component {
   };
 
   statusInputChangeHandler = (input, value) => {
+    console.log(value);
+
     this.setState({ status: value });
   };
 

@@ -2,7 +2,6 @@ const fs = require("fs");
 const path = require("path");
 
 const { validationResult } = require("express-validator");
-const mongoose = require("mongoose");
 
 const Post = require("../models/post");
 const User = require("../models/user");
@@ -207,6 +206,54 @@ exports.updatePost = function (req, res, next) {
     })
     .then((result) => {
       return res.status(200).json({ message: "Post updated!", post: result });
+    })
+    .catch((error) => {
+      if (!error.statusCode) {
+        error.statusCode = 500;
+      }
+
+      next(error);
+    });
+};
+
+exports.updateStatus = function (req, res, next) {
+  // Check for errors
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    const error = new Error("Validation failed!");
+    error.statusCode = 422;
+
+    throw error;
+  }
+
+  console.log(req.body);
+
+  const newStatus = req.body.status;
+
+  console.log(newStatus);
+
+  // Find user by ID sent through request header
+  User.findById(req.userId)
+    .then((user) => {
+      // Check if user is valid
+      if (!user) {
+        const error = new Error("User not found!");
+        error.statusCode = 500;
+
+        throw error;
+      }
+
+      // Set the new status and save the user
+      user.status = newStatus;
+
+      return user.save();
+    })
+    .then((result) => {
+      // Return the result of user.save()
+      return res
+        .status(200)
+        .json({ message: "Status updated!", status: result });
     })
     .catch((error) => {
       if (!error.statusCode) {
