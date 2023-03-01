@@ -60,9 +60,44 @@ exports.getPost = function (req, res, next) {
     });
 };
 
-exports.createPost = function (req, res, next) {
-  console.log(req.userId);
+exports.getStatus = function (req, res, next) {
+  // Check for validation errors
+  const errors = validationResult(req);
 
+  if (!errors.isEmpty()) {
+    const error = new Error("Validation failed!");
+    error.statusCode = 422;
+
+    throw error;
+  }
+
+  // Find user by ID passed through request header
+  User.findById(req.userId)
+    .then((user) => {
+      // Check if user is not found - if not, throw an error
+      if (!user) {
+        const error = new Error("User not found!");
+        error.statusCode = 500;
+
+        throw error;
+      }
+
+      // If a user is found, return the status
+      res.status(200).json({
+        message: "Status fetched!",
+        status: user.status,
+      });
+    })
+    .catch((error) => {
+      if (!error.statusCode) {
+        error.statusCode = 500;
+      }
+
+      next(error);
+    });
+};
+
+exports.createPost = function (req, res, next) {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
