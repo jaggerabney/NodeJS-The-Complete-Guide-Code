@@ -24,6 +24,7 @@ exports.getPosts = async function (req, res, next) {
     // Fetches all posts (as well as their number) from the db
     const totalItems = await Post.find().countDocuments();
     const posts = await Post.find()
+      .populate("creator")
       // These functions are for pagination:
       // skip excludes documents and limit restricts how many are returned
       .skip((currentPage - 1) * paginationThreshold)
@@ -46,7 +47,7 @@ exports.getPost = async function (req, res, next) {
 
   try {
     // Finds the post by ID
-    const post = await Post.findById(postId);
+    const post = await Post.findById(postId).populate("creator");
 
     // Checks that the post is defined
     if (!post) {
