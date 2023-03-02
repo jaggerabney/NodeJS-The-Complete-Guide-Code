@@ -6,6 +6,7 @@ const path = require("path");
 const { validationResult } = require("express-validator");
 
 // Project imports
+const io = require("../socket");
 const Post = require("../models/post");
 const User = require("../models/user");
 const { clearImage } = require("../util/image");
@@ -112,6 +113,9 @@ exports.createPost = async function (req, res, next) {
       // the change to the db
       creator.posts.push(post);
       await creator.save();
+
+      // Syncs all connected clients' posts
+      io.get().emit("posts", { action: "create", post });
 
       // Returns a success message, the created post object, and info
       // about the post's creator to the frontend
