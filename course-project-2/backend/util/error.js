@@ -5,12 +5,12 @@ exports.throwCustomError = function (message, status) {
   throw error;
 };
 
-exports.throwError = function (error) {
+exports.addStatusCodeTo = function (error) {
   if (!error.statusCode) {
     error.statusCode = 500;
   }
 
-  next(error);
+  return error;
 };
 
 exports.hasNoValidationErrors = function (errors) {

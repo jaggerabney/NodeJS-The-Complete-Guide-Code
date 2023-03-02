@@ -5,214 +5,245 @@ const { validationResult } = require("express-validator");
 
 const Post = require("../models/post");
 const User = require("../models/user");
+const { clearImage } = require("../util/image");
 const {
   throwCustomError,
-  throwError,
   hasNoValidationErrors,
+  addStatusCodeTo,
 } = require("../util/error");
 
 exports.getPosts = async function (req, res, next) {
+  // Variables for pagination
   const currentPage = req.query.page || 1;
   const paginationThreshold = 2;
 
   try {
+    // Fetches all posts (as well as their number) from the db
     const totalItems = await Post.find().countDocuments();
     const posts = await Post.find()
+      // These functions are for pagination:
+      // skip excludes documents and limit restricts how many are returned
       .skip((currentPage - 1) * paginationThreshold)
       .limit(paginationThreshold);
 
+    // Returns the posts and their number to the frontend
     return res.status(200).json({
       message: "All posts fetched!",
       posts,
       totalItems,
     });
   } catch (error) {
-    throwError(error);
+    next(addStatusCodeTo(error));
   }
 };
 
-exports.getPost = function (req, res, next) {
+exports.getPost = async function (req, res, next) {
+  // Gets the postId from the "post" query parameter
   const { postId } = req.params;
 
-  Post.findById(postId)
-    .then((post) => {
-      if (!post) {
-        throwCustomError("Post not found!", 404);
-      }
+  try {
+    // Finds the post by ID
+    const post = await Post.findById(postId);
 
-      return res.status(200).json({ message: "Post fetched!", post });
-    })
-    .catch((error) => {
-      throwError(error);
-    });
+    // Checks that the post is defined
+    if (!post) {
+      throwCustomError("Post not found!", 404);
+    }
+
+    // Returns the post, along with a success message
+    return res.status(200).json({ message: "Post fetched!", post });
+  } catch (error) {
+    next(addStatusCodeTo(error));
+  }
 };
 
-exports.getStatus = function (req, res, next) {
-  // Find user by ID passed through request header
-  User.findById(req.userId)
-    .then((user) => {
-      // Check if user is not found - if not, throw an error
-      if (!user) {
-        throwCustomError("User not found!", 500);
-      }
+exports.getStatus = async function (req, res, next) {
+  try {
+    // Find user by ID passed through request header
+    const user = await User.findById(req.userId);
 
-      // If a user is found, return the status
-      return res.status(200).json({
-        message: "Status fetched!",
-        status: user.status,
-      });
-    })
-    .catch((error) => {
-      throwError(error);
+    // Check if user is not found - if not, throw an error
+    if (!user) {
+      throwCustomError("User not found!", 500);
+    }
+
+    // If a user *is* found, return a success message and the status to the frontend
+    return res.status(200).json({
+      message: "Status fetched!",
+      status: user.status,
     });
+  } catch (error) {
+    next(addStatusCodeTo(error));
+  }
 };
 
-exports.createPost = function (req, res, next) {
+exports.createPost = async function (req, res, next) {
+  // Checks if there were any errors during validation in the previous middlewares.
+  // hasNoValidationErrors either returns true if there are no errors, or throws an error
+  // if there are any; thus, there's no need for an else block.
   if (hasNoValidationErrors(validationResult(req))) {
+    // Verify that an image was provided
     if (!req.file) {
       throwCustomError("No image provided!", 422);
     }
 
-    const { title, content } = req.body;
-    const imageUrl = req.file.path;
-    let creator;
+    try {
+      // Get the post title, content, image URL, and creators
+      const { title, content } = req.body;
+      const imageUrl = req.file.path;
+      const creator = await User.findById(req.userId);
 
-    const post = new Post({
-      title,
-      imageUrl,
-      content,
-      creator: req.userId,
-    });
-
-    post
-      .save()
-      .then(() => {
-        return User.findById(req.userId);
-      })
-      .then((user) => {
-        creator = user;
-
-        user.posts.push(post);
-
-        return user.save();
-      })
-      .then(() => {
-        return res.status(201).json({
-          message: "Post created successfully!",
-          post,
-          creator: {
-            _id: creator._id,
-            name: creator.name,
-          },
-        });
-      })
-      .catch((error) => {
-        throwError(error);
+      // Create an instance of the Post model defined in models/post.js
+      const post = new Post({
+        title,
+        imageUrl,
+        content,
+        creator: creator._id,
       });
+
+      // Saves the recently-created post to the db
+      await post.save();
+
+      // Adds the newly-saved post to the creator's posts, then saves
+      // the change to the db
+      creator.posts.push(post);
+      await creator.save();
+
+      // Returns a success message, the created post object, and info
+      // about the post's creator to the frontend
+      return res.status(201).json({
+        message: "Post created successfully!",
+        post,
+        creator: {
+          _id: creator._id,
+          name: creator.name,
+        },
+      });
+    } catch (error) {
+      next(addStatusCodeTo(error));
+    }
   }
 };
 
-exports.updatePost = function (req, res, next) {
+exports.updatePost = async function (req, res, next) {
+  // Checks if there were any errors during validation in the previous middlewares.
+  // hasNoValidationErrors either returns true if there are no errors, or throws an error
+  // if there are any; thus, there's no need for an else block.
   if (hasNoValidationErrors(validationResult(req))) {
+    // Gets...
+    // - postId from the "post" query parameter
+    // - title & content from the request body
+    // - imageUrl from either the appended "req.file" variable (if "req.file" exists),
+    //   or the request body (if "req.file" doens't)
     const { postId } = req.params;
     const { title, content } = req.body;
     const imageUrl = req.file ? req.file.path : req.body.image;
 
+    // Checks that imageUrl is defined, just in case
     if (!imageUrl) {
       throwCustomError("No file picked!", 422);
     }
 
-    Post.findById(postId)
-      .then((post) => {
-        if (!post) {
-          throwCustomError("Couldn't find post!", 404);
-        }
+    try {
+      // Gets the post to be edited from its ID
+      const post = await Post.findById(postId);
 
-        if (post.creator.toString() !== req.userId) {
-          throwCustomError("Not authorized!", 403);
-        }
-
-        if (imageUrl !== post.imageUrl) {
-          clearImage(post.imageUrl);
-        }
-
-        post.title = title;
-        post.imageUrl = imageUrl;
-        post.content = content;
-
-        return post.save();
-      })
-      .then((result) => {
-        return res.status(200).json({ message: "Post updated!", post: result });
-      })
-      .catch((error) => {
-        throwError(error);
-      });
-  }
-};
-
-exports.updateStatus = function (req, res, next) {
-  if (hasNoValidationErrors(validationResult(req))) {
-    const newStatus = req.body.status;
-
-    // Find user by ID sent through request header
-    User.findById(req.userId)
-      .then((user) => {
-        // Check if user is valid
-        if (!user) {
-          throwCustomError("User not found!", 404);
-        }
-
-        // Set the new status and save the user
-        user.status = newStatus;
-
-        return user.save();
-      })
-      .then((result) => {
-        // Return the result of user.save()
-        return res
-          .status(200)
-          .json({ message: "Status updated!", status: result });
-      })
-      .catch((error) => {
-        throwError(error);
-      });
-  }
-};
-
-exports.deletePost = function (req, res, next) {
-  const { postId } = req.params;
-
-  Post.findById(postId)
-    .then((post) => {
+      // Checks that the post is defined
       if (!post) {
         throwCustomError("Couldn't find post!", 404);
       }
 
+      // Checks that the post belongs to the user;
+      // if it doesn't, an error is thrown
       if (post.creator.toString() !== req.userId) {
         throwCustomError("Not authorized!", 403);
       }
 
-      clearImage(post.imageUrl);
+      // Checks if the new imageUrl is different from the old one;
+      // if so, the image associated with the old image URL is deleted
+      if (imageUrl !== post.imageUrl) {
+        clearImage(post.imageUrl);
+      }
 
-      return Post.findByIdAndRemove(postId);
-    })
-    .then(() => {
-      return User.findById(req.userId);
-    })
-    .then((user) => {
-      user.posts.pull(postId);
-      user.save();
+      // Assigns the posts new title, imageUrl, and content
+      post.title = title;
+      post.imageUrl = imageUrl;
+      post.content = content;
 
-      return res.status(200).json({ message: "Deleted post!" });
-    })
-    .catch((error) => {
-      throwError(error);
-    });
+      // Saves the post to the db
+      await post.save();
+
+      // Returns the post and a success message to the frontend
+      return res.status(200).json({ message: "Post updated!", post });
+    } catch (error) {
+      next(addStatusCodeTo(error));
+    }
+  }
 };
 
-function clearImage(filePath) {
-  filePath = path.join(__dirname, "..", filePath);
+exports.updateStatus = async function (req, res, next) {
+  // Checks if there were any errors during validation in the previous middlewares.
+  // hasNoValidationErrors either returns true if there are no errors, or throws an error
+  // if there are any; thus, there's no need for an else block.
+  if (hasNoValidationErrors(validationResult(req))) {
+    // Gets the new status from the request body
+    const newStatus = req.body.status;
 
-  fs.unlink(filePath, (error) => console.log(error));
-}
+    try {
+      // Finds the user by the ID sent through the request header
+      const user = await User.findById(req.userId);
+
+      // Checks that the user is defined
+      if (!user) {
+        throwCustomError("User not found!", 404);
+      }
+
+      // Sets the new status and saves the user
+      user.status = newStatus;
+
+      await user.save();
+
+      // Returns the new status and a success message to the frontend
+      return res
+        .status(200)
+        .json({ message: "Status updated!", status: user.status });
+    } catch (error) {
+      next(addStatusCodeTo(error));
+    }
+  }
+};
+
+exports.deletePost = async function (req, res, next) {
+  // Gets the postId from the "post" query parameter
+  const { postId } = req.params;
+
+  try {
+    // Gets the target post by its ID, and the user by the ID
+    // passed through the request header
+    const post = await Post.findById(postId);
+    const user = await User.findById(req.userId);
+
+    // Checks that the post is defined
+    if (!post) {
+      throwCustomError("Couldn't find post!", 404);
+    }
+
+    // Checks that the post belongs to the current user
+    if (post.creator.toString() !== req.userId) {
+      throwCustomError("Not authorized!", 403);
+    }
+
+    // Deletes the post's image, and deletes the post from the db and the user's posts
+    clearImage(post.imageUrl);
+    await Post.findByIdAndRemove(postId);
+    user.posts.pull(postId);
+
+    // Saves the changes made to the user to the db
+    await user.save();
+
+    // Returns a success message to the frontend
+    return res.status(200).json({ message: "Deleted post!" });
+  } catch (error) {
+    next(addStatusCodeTo(error));
+  }
+};
