@@ -76,7 +76,7 @@ exports.login = async function (req, res, next) {
     );
 
     // This token, along with the user's ID, is then returned to the frontend
-    return res.status(200).json({ token, userId: loadedUser._id.toString() });
+    return res.status(200).json({ token, userId: user._id.toString() });
   } catch (error) {
     next(addStatusCodeTo(error));
   }
