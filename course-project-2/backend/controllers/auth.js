@@ -68,8 +68,8 @@ exports.login = async function (req, res, next) {
     // Otherwise, a JWT token that stores the user's email and ID is created
     const token = jwt.sign(
       {
-        email: loadedUser.email,
-        userId: loadedUser._id.toString(),
+        email: user.email,
+        userId: user._id.toString(),
       },
       process.env.JWT_KEY,
       { expiresIn: "1h" }
