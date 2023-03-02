@@ -11,30 +11,24 @@ const {
   hasNoValidationErrors,
 } = require("../util/error");
 
-exports.getPosts = function (req, res, next) {
+exports.getPosts = async function (req, res, next) {
   const currentPage = req.query.page || 1;
   const paginationThreshold = 2;
-  let totalItems = 0;
 
-  Post.find()
-    .countDocuments()
-    .then((count) => {
-      totalItems = count;
+  try {
+    const totalItems = await Post.find().countDocuments();
+    const posts = await Post.find()
+      .skip((currentPage - 1) * paginationThreshold)
+      .limit(paginationThreshold);
 
-      return Post.find()
-        .skip((currentPage - 1) * paginationThreshold)
-        .limit(paginationThreshold);
-    })
-    .then((posts) => {
-      return res.status(200).json({
-        message: "All posts fetched!",
-        posts,
-        totalItems,
-      });
-    })
-    .catch((error) => {
-      throwError(error);
+    return res.status(200).json({
+      message: "All posts fetched!",
+      posts,
+      totalItems,
     });
+  } catch (error) {
+    throwError(error);
+  }
 };
 
 exports.getPost = function (req, res, next) {
