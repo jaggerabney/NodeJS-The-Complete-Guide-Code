@@ -1,8 +1,11 @@
+// Node.js imports
 const fs = require("fs");
 const path = require("path");
 
+// Third-party imports
 const { validationResult } = require("express-validator");
 
+// Project imports
 const Post = require("../models/post");
 const User = require("../models/user");
 const { clearImage } = require("../util/image");
