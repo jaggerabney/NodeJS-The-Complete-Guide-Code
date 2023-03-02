@@ -15,6 +15,7 @@ const {
   hasNoValidationErrors,
   addStatusCodeTo,
 } = require("../util/error");
+const user = require("../models/user");
 
 exports.getPosts = async function (req, res, next) {
   // Variables for pagination
@@ -115,7 +116,13 @@ exports.createPost = async function (req, res, next) {
       await creator.save();
 
       // Syncs all connected clients' posts
-      io.get().emit("posts", { action: "create", post });
+      io.get().emit("posts", {
+        action: "create",
+        post: {
+          ...post._doc,
+          creator: { _id: req.userId, name: creator.name },
+        },
+      });
 
       // Returns a success message, the created post object, and info
       // about the post's creator to the frontend
