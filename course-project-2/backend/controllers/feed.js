@@ -27,6 +27,7 @@ exports.getPosts = async function (req, res, next) {
     const totalItems = await Post.find().countDocuments();
     const posts = await Post.find()
       .populate("creator")
+      .sort({ createdAt: -1 })
       // These functions are for pagination:
       // skip excludes documents and limit restricts how many are returned
       .skip((currentPage - 1) * paginationThreshold)
@@ -161,7 +162,7 @@ exports.updatePost = async function (req, res, next) {
 
     try {
       // Gets the post to be edited from its ID
-      const post = await Post.findById(postId);
+      const post = await Post.findById(postId).populate("creator");
 
       // Checks that the post is defined
       if (!post) {
@@ -170,7 +171,7 @@ exports.updatePost = async function (req, res, next) {
 
       // Checks that the post belongs to the user;
       // if it doesn't, an error is thrown
-      if (post.creator.toString() !== req.userId) {
+      if (post.creator._id.toString() !== req.userId) {
         throwCustomError("Not authorized!", 403);
       }
 
@@ -187,6 +188,9 @@ exports.updatePost = async function (req, res, next) {
 
       // Saves the post to the db
       await post.save();
+
+      // Syncs all connected clients' posts
+      io.get().emit("posts", { action: "update", post });
 
       // Returns the post and a success message to the frontend
       return res.status(200).json({ message: "Post updated!", post });
