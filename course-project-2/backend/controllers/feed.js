@@ -260,6 +260,9 @@ exports.deletePost = async function (req, res, next) {
     // Saves the changes made to the user to the db
     await user.save();
 
+    // Syncs all connected clients' posts
+    io.get().emit("posts", { action: "delete", postId });
+
     // Returns a success message to the frontend
     return res.status(200).json({ message: "Deleted post!" });
   } catch (error) {
