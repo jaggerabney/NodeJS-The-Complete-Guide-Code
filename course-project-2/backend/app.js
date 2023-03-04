@@ -6,12 +6,13 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const multer = require("multer");
+const { graphqlHTTP } = require("express-graphql");
 const { v4: uuidv4 } = require("uuid");
 require("dotenv").config();
 
 // Project imports
-const feedRoutes = require("./routes/feed");
-const authRoutes = require("./routes/auth");
+const graphqlSchema = require("./graphql/schema");
+const graphqlResolver = require("./graphql/resolvers");
 
 // Creates app
 const app = express();
@@ -52,9 +53,13 @@ app.use((req, res, next) => {
   next();
 });
 
-// Adds feed and auth routes
-app.use("/feed", feedRoutes);
-app.use("/auth", authRoutes);
+app.use(
+  "/graphql",
+  graphqlHTTP({
+    schema: graphqlSchema,
+    rootValue: graphqlResolver,
+  })
+);
 
 // Adds error-handling middleware
 app.use((error, req, res, next) => {
@@ -73,12 +78,6 @@ app.use((error, req, res, next) => {
 mongoose
   .connect(process.env.DB_CONNECTION_STRING)
   .then(() => {
-    const server = app.listen(8080);
-    const io = require("./socket").init(server, {
-      cors: {
-        origin: "http://localhost:3000",
-        methods: ["GET", "POST"],
-      },
-    });
+    app.listen(8080);
   })
   .catch((error) => console.log(error));
