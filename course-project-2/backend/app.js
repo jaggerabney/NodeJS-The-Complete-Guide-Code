@@ -59,6 +59,17 @@ app.use(
     schema: graphqlSchema,
     rootValue: graphqlResolver,
     graphiql: true,
+    formatError(error) {
+      if (!error.originalError) {
+        return error;
+      }
+
+      const data = error.originalError.data;
+      const message = error.message || "An error occurred!";
+      const code = error.originalError.code || 500;
+
+      return { message, status: code, data };
+    },
   })
 );
 
