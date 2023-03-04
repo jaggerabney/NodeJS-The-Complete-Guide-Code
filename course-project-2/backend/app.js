@@ -13,6 +13,7 @@ require("dotenv").config();
 // Project imports
 const graphqlSchema = require("./graphql/schema");
 const graphqlResolver = require("./graphql/resolvers");
+const auth = require("./middleware/auth");
 
 // Creates app
 const app = express();
@@ -56,6 +57,8 @@ app.use((req, res, next) => {
 
   next();
 });
+
+app.use(auth);
 
 app.use(
   "/graphql",
