@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const User = require("../models/user");
+const Post = require("../models/post");
 
 module.exports = {
   createUser: async function ({ userInput }, req) {
@@ -81,6 +82,45 @@ module.exports = {
     return {
       token,
       userId: user._id.toString(),
+    };
+  },
+  createPost: async function ({ postInput }, req) {
+    const { title, content, imageUrl } = postInput;
+    const errors = [];
+
+    if (validator.isEmpty(title) || !validator.isLength(title, { min: 5 })) {
+      errors.push({ message: "Invalid title!" });
+    }
+
+    if (
+      validator.isEmpty(content) ||
+      !validator.isLength(content, { min: 5 })
+    ) {
+      errors.push({ message: "Invalid content!" });
+    }
+
+    if (errors.length > 0) {
+      const error = new Error("Invalid input!");
+      error.data = errors;
+      error.code = 422;
+
+      throw error;
+    }
+
+    const post = new Post({
+      title,
+      content,
+      imageUrl,
+    });
+
+    const createdPost = await post.save();
+    // TODO: Add post to user's posts!
+
+    return {
+      ...createdPost._doc,
+      _id: createdPost._id.toString(),
+      createdAt: createdPost.createdAt.toISOString(),
+      updatedAt: createdPost.updatedAt.toISOString(),
     };
   },
 };
