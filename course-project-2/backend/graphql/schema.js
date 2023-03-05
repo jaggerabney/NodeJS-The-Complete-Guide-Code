@@ -46,6 +46,7 @@ module.exports = buildSchema(`
         login(email: String!, password: String!): AuthData!
         getAllPosts(page: Int): PostsData!
         getPost(postId: String): Post!
+        user: User!
     }
 
     type RootMutation {
@@ -53,6 +54,7 @@ module.exports = buildSchema(`
         createPost(postInput: PostInputData): Post!
         updatePost(postId: ID!, postInput: PostInputData): Post!
         deletePost(postId: ID!): Boolean
+        updateStatus(status: String!): User!
     }
 
     schema {
