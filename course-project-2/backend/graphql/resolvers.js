@@ -138,4 +138,36 @@ module.exports = {
       updatedAt: createdPost.updatedAt.toISOString(),
     };
   },
+  getAllPosts: async function (args, req) {
+    if (!req.isAuth) {
+      const error = new Error("Not authenticated!");
+      error.code = 401;
+
+      throw error;
+    }
+
+    const posts = await Post.find().sort({ createdAt: -1 }).populate("creator");
+    const total = await Post.find().countDocuments();
+
+    if (!posts) {
+      const error = new Error("No posts!");
+      error.code = 401;
+
+      throw error;
+    }
+
+    console.log(posts);
+
+    return {
+      posts: posts.map((post) => {
+        return {
+          ...post._doc,
+          __id: post._id.toString(),
+          createdAt: post.createdAt.toISOString(),
+          updatedAt: post.updatedAt.toISOString(),
+        };
+      }),
+      total,
+    };
+  },
 };

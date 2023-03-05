@@ -45,35 +45,68 @@ class Feed extends Component {
     if (direction) {
       this.setState({ postsLoading: true, posts: [] });
     }
+
     let page = this.state.postPage;
+
     if (direction === "next") {
       page++;
       this.setState({ postPage: page });
     }
+
     if (direction === "previous") {
       page--;
       this.setState({ postPage: page });
     }
-    fetch(`http://localhost:8080/feed/posts?page=${page}`, {
+
+    const graphqlQuery = {
+      query: `
+        {
+          getAllPosts {
+            posts {
+              _id
+              title
+              content
+              imageUrl
+              creator {
+                name
+              }
+              createdAt
+            }
+            total
+          }
+        }
+      `,
+    };
+
+    fetch(`http://localhost:8080/graphql`, {
+      method: "POST",
       headers: {
         Authorization: `Bearer ${this.props.token}`,
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify(graphqlQuery),
     })
-      .then((res) => {
-        if (res.status !== 200) {
-          throw new Error("Failed to fetch posts.");
-        }
-        return res.json();
-      })
+      .then((res) => res.json())
       .then((resData) => {
+        console.log(resData);
+
+        if (resData.errors && resData.errors[0].status === 422) {
+          throw new Error("Validation failed!");
+        }
+
+        if (resData.errors) {
+          console.log("Error!");
+          throw new Error("Could not authenticate you!");
+        }
+
         this.setState({
-          posts: resData.posts.map((post) => {
+          posts: resData.data.getAllPosts.posts.map((post) => {
             return {
               ...post,
               imagePath: post.imageUrl,
             };
           }),
-          totalPosts: resData.totalItems,
+          totalPosts: resData.data.getAllPosts.total,
           postsLoading: false,
         });
       })
