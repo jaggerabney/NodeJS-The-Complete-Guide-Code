@@ -316,4 +316,29 @@ module.exports = {
       _id: user._id.toString(),
     };
   },
+  updateStatus: async function ({ status }, req) {
+    if (!req.isAuth) {
+      const error = new Error("Not authenticated!");
+      error.code = 401;
+
+      throw error;
+    }
+
+    const user = await User.findById(req.userId);
+
+    if (!user) {
+      const error = new Error("No user found!");
+      error.code = 404;
+
+      throw error;
+    }
+
+    user.status = status;
+    await user.save();
+
+    return {
+      ...user._doc,
+      _id: user._id.toString(),
+    };
+  },
 };
