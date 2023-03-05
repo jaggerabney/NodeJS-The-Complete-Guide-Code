@@ -129,6 +129,7 @@ module.exports = {
     const createdPost = await post.save();
 
     creator.posts.push(createdPost);
+    await creator.save();
 
     return {
       ...createdPost._doc,
