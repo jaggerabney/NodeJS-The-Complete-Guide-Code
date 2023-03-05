@@ -48,11 +48,7 @@ module.exports = {
     return { ...createdUser._doc, _id: createdUser._id.toString() };
   },
   login: async function ({ email, password }) {
-    console.log(`Email: ${email}, password: ${password}`);
-
     const user = await User.findOne({ email });
-
-    console.log(user);
 
     if (!user) {
       const error = new Error("User not found!");

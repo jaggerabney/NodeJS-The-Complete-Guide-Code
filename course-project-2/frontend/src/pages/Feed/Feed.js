@@ -129,33 +129,54 @@ class Feed extends Component {
     this.setState({
       editLoading: true,
     });
+
     const formData = new FormData();
 
     formData.append("title", postData.title);
     formData.append("content", postData.content);
     formData.append("image", postData.image);
 
-    let url = this.state.editPost
-      ? `http://localhost:8080/feed/post/${this.state.editPost._id}`
-      : "http://localhost:8080/feed/post";
-    let method = this.state.editPost ? "PUT" : "POST";
+    let graphqlQuery = {
+      query: `
+        mutation {
+          createPost(postInput: {
+            title: "${postData.title}",
+            content: "${postData.content}",
+            imageUrl: "some url"
+          }) {
+            _id
+            title
+            content
+            imageUrl
+            creator {
+              name
+            }
+            createdAt
+          }
+        }
+      `,
+    };
 
-    fetch(url, {
-      method,
+    fetch("http://localhost:8080/graphql", {
+      method: "POST",
       headers: {
         Authorization: `Bearer ${this.props.token}`,
+        "Content-Type": "application/json",
       },
-      body: formData,
+      body: JSON.stringify(graphqlQuery),
     })
-      .then((res) => {
-        if (res.status !== 200 && res.status !== 201) {
-          throw new Error("Creating or editing a post failed!");
-        }
-
-        return res.json();
-      })
+      .then((res) => res.json())
       .then((resData) => {
         console.log(resData);
+
+        if (resData.errors && resData.errors[0].status === 422) {
+          throw new Error("Validation failed!");
+        }
+
+        if (resData.errors) {
+          console.log("Error!");
+          throw new Error("Could not authenticate you!");
+        }
 
         const post = {
           _id: resData.post._id,
