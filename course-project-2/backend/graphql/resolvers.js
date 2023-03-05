@@ -138,7 +138,7 @@ module.exports = {
       updatedAt: createdPost.updatedAt.toISOString(),
     };
   },
-  getAllPosts: async function (args, req) {
+  getAllPosts: async function ({ page }, req) {
     if (!req.isAuth) {
       const error = new Error("Not authenticated!");
       error.code = 401;
@@ -146,7 +146,16 @@ module.exports = {
       throw error;
     }
 
-    const posts = await Post.find().sort({ createdAt: -1 }).populate("creator");
+    if (!page) {
+      page = 1;
+    }
+
+    const paginationThreshold = 2;
+    const posts = await Post.find()
+      .sort({ createdAt: -1 })
+      .populate("creator")
+      .skip((page - 1) * paginationThreshold)
+      .limit(paginationThreshold);
     const total = await Post.find().countDocuments();
 
     if (!posts) {

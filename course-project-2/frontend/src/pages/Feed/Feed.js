@@ -61,7 +61,7 @@ class Feed extends Component {
     const graphqlQuery = {
       query: `
         {
-          getAllPosts {
+          getAllPosts(page: ${page}) {
             posts {
               _id
               title
@@ -88,8 +88,6 @@ class Feed extends Component {
     })
       .then((res) => res.json())
       .then((resData) => {
-        console.log(resData);
-
         if (resData.errors && resData.errors[0].status === 422) {
           throw new Error("Validation failed!");
         }
@@ -227,6 +225,7 @@ class Feed extends Component {
             );
             updatedPosts[postIndex] = post;
           } else {
+            updatedPosts.pop();
             updatedPosts.unshift(post);
           }
           return {

@@ -80,8 +80,6 @@ class App extends Component {
     })
       .then((res) => res.json())
       .then((resData) => {
-        console.log(resData);
-
         if (resData.errors && resData.errors[0].status === 422) {
           throw new Error("Validation failed.");
         }
@@ -156,8 +154,6 @@ class App extends Component {
         if (resData.errors) {
           throw new Error("User creation failed!");
         }
-
-        console.log(resData);
 
         this.setState({ isAuth: false, authLoading: false });
         this.props.history.replace("/");
