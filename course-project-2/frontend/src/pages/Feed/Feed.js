@@ -177,7 +177,9 @@ class Feed extends Component {
     })
       .then((res) => res.json())
       .then((fileResData) => {
-        const imageUrl = fileResData.filePath;
+        const imageUrl = fileResData.filePath.replace("\\", "/");
+
+        console.log(imageUrl);
 
         let graphqlQuery = {
           query: `
@@ -185,7 +187,7 @@ class Feed extends Component {
               createPost(postInput: {
                 title: "${postData.title}",
                 content: "${postData.content}",
-                imageUrl: "some url"
+                imageUrl: "${imageUrl}"
               }) {
                 _id
                 title
@@ -226,6 +228,7 @@ class Feed extends Component {
           _id: resData.data.createPost._id,
           title: resData.data.createPost.title,
           content: resData.data.createPost.content,
+          imageUrl: resData.data.createPost.imageUrl,
           creator: resData.data.createPost.creator,
           createdAt: resData.data.createPost.createdAt,
         };

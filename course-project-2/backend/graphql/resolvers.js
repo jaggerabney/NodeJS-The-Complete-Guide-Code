@@ -165,8 +165,6 @@ module.exports = {
       throw error;
     }
 
-    console.log(posts);
-
     return {
       posts: posts.map((post) => {
         return {
@@ -177,6 +175,27 @@ module.exports = {
         };
       }),
       total,
+    };
+  },
+  getPost: async function ({ postId }, req) {
+    if (!req.isAuth) {
+      const error = new Error("Not authenticated!");
+      error.code = 401;
+
+      throw error;
+    }
+
+    if (!postId) {
+      throw new Error("No postId provided!");
+    }
+
+    const post = await Post.findById(postId).populate("creator");
+
+    return {
+      ...post._doc,
+      _id: post._id.toString(),
+      createdAt: post.createdAt.toISOString(),
+      updatedAt: post.updatedAt.toISOString(),
     };
   },
 };
