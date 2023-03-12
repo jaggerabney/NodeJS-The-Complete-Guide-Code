@@ -13,6 +13,7 @@ const flash = require("connect-flash");
 const multer = require("multer");
 const helmet = require("helmet");
 const compression = require("compression");
+const morgan = require("morgan");
 
 // Project imports
 const adminRoutes = require("./routes/admin");
@@ -104,6 +105,7 @@ app.use((req, res, next) => {
 app.use(flash());
 app.use(helmet());
 app.use(compression());
+app.use(morgan("combined", { stream: accessLogStream }));
 
 // Adds current user to req, if there is one
 app.use((req, res, next) => {
