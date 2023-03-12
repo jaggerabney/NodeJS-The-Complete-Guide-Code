@@ -2,7 +2,6 @@ const bcrypt = require("bcryptjs");
 const sendGrid = require("@sendgrid/mail");
 const crypto = require("crypto");
 const { validationResult } = require("express-validator/check");
-require("dotenv").config();
 
 const User = require("../models/user");
 const generateError = require("../util/generateError");

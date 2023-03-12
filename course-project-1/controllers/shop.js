@@ -2,7 +2,6 @@ const fs = require("fs");
 const path = require("path");
 
 const pdfDocument = require("pdfkit");
-require("dotenv").config();
 const stripe = require("stripe")(process.env.STRIPE_API_KEY);
 
 const Product = require("../models/product");
@@ -182,6 +181,7 @@ exports.getCheckoutPage = function (req, res, next) {
   req.user
     .populate("cart.items.productId")
     .then((data) => {
+      console.log("Populated cart items!");
       products = data.cart.items;
       total = 0;
 
@@ -189,6 +189,7 @@ exports.getCheckoutPage = function (req, res, next) {
         (product) => (total += product.quantity * product.productId.price)
       );
 
+      console.log("Handing off to Stripe...");
       return stripe.checkout.sessions.create({
         payment_method_types: ["card"],
         line_items: products.map((product) => {
@@ -210,7 +211,9 @@ exports.getCheckoutPage = function (req, res, next) {
         cancel_url: req.protocol + "://" + req.get("host") + "/checkout/cancel",
       });
     })
-    .then((session) =>
+    .then((session) => {
+      console.log("Rendering checkout page...");
+
       res.render("shop/checkout", {
         title: "Checkout",
         path: "/checkout",
@@ -221,9 +224,9 @@ exports.getCheckoutPage = function (req, res, next) {
           currency: "USD",
         }).format(total),
         sessionId: session.id,
-      })
-    )
-    .catch(() => next(generateError("Couldn't get cart!", 500)));
+      });
+    })
+    .catch((error) => next(generateError(error.message, 500)));
 };
 
 exports.getInvoice = function (req, res, next) {

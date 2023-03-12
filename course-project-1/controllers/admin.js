@@ -1,5 +1,4 @@
 const { validationResult } = require("express-validator/check");
-require("dotenv").config();
 
 const Product = require("../models/product");
 const generateError = require("../util/generateError");

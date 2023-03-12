@@ -8,7 +8,6 @@ const mongoDBstore = require("connect-mongodb-session")(session);
 const csrf = require("csurf");
 const flash = require("connect-flash");
 const multer = require("multer");
-require("dotenv").config();
 
 // Project imports
 const adminRoutes = require("./routes/admin");
