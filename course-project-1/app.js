@@ -1,6 +1,9 @@
+// Node imports
+const fs = require("fs");
+const path = require("path");
+
 // Third-party imports
 const express = require("express");
-const path = require("path");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const session = require("express-session");
@@ -8,6 +11,8 @@ const mongoDBstore = require("connect-mongodb-session")(session);
 const csrf = require("csurf");
 const flash = require("connect-flash");
 const multer = require("multer");
+const helmet = require("helmet");
+const compression = require("compression");
 
 // Project imports
 const adminRoutes = require("./routes/admin");
@@ -15,6 +20,12 @@ const shopRoutes = require("./routes/shop");
 const authRoutes = require("./routes/auth");
 const errorController = require("./controllers/error");
 const User = require("./models/user");
+
+// Write stream for use with Morgan to write log files
+const accessLogStream = fs.createWriteStream(
+  path.join(__dirname, "access.log"),
+  { flags: "a" }
+);
 
 // Multer configuration options objects
 const storage = multer.diskStorage({
@@ -70,7 +81,7 @@ app.set("views", "views/pug");
 // app.set("view engine", "ejs");
 // app.set("views", "views/ejs");
 
-// Adds body-parser; exposes public folder; manages sessions, CSRF protection, and flashing
+// Configures and adds third-party middlewares
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(multer({ storage, fileFilter }).single("image"));
 app.use(express.static(path.join(__dirname, "public")));
@@ -91,6 +102,8 @@ app.use((req, res, next) => {
   next();
 });
 app.use(flash());
+app.use(helmet());
+app.use(compression());
 
 // Adds current user to req, if there is one
 app.use((req, res, next) => {
