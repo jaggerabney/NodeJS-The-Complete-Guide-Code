@@ -1,6 +1,7 @@
 // Node imports
 const fs = require("fs");
 const path = require("path");
+const https = require("https");
 
 // Third-party imports
 const express = require("express");
@@ -21,6 +22,9 @@ const shopRoutes = require("./routes/shop");
 const authRoutes = require("./routes/auth");
 const errorController = require("./controllers/error");
 const User = require("./models/user");
+
+const privateKey = fs.readFileSync("server.key");
+const certificate = fs.readFileSync("server.cert");
 
 // Write stream for use with Morgan to write log files
 const accessLogStream = fs.createWriteStream(
@@ -147,6 +151,10 @@ app.use((error, req, res, next) => {
 mongoose
   .connect(process.env.DB_CONNECTION_STRING)
   .then(() => {
+    // https
+    //   .createServer({ key: privateKey, cert: certificate }, app)
+    //   .listen(process.env.PORT || 3000);
+
     app.listen(process.env.PORT || 3000);
   })
   .catch((error) => console.log(error));
