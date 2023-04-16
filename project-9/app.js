@@ -1,7 +1,9 @@
-const fs = require("fs").promises;
+const http = require("http");
 
-const text = "This is only a test!";
+const server = http.createServer((req, res) => {
+  res.end("Hello world!");
+});
 
-fs.writeFile("message_node.txt", text).then(() =>
-  console.log("Wrote to message.txt!")
-);
+console.log("Server running at http://localhost:3000/.");
+
+server.listen(3000);
