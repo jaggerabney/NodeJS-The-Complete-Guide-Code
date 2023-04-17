@@ -1,5 +1,7 @@
 import { Router } from "https://deno.land/x/oak/mod.ts";
 
+import { ObjectId } from "https://deno.land/x/mongo@v0.31.2/mod.ts";
+
 import { getDb } from "../helpers/db_client.ts";
 
 const router = new Router();
@@ -41,23 +43,40 @@ router.post("/todos", async (context) => {
 });
 
 router.put("/todos/:todoId", async (context) => {
-  // const todoId = context.params.todoId;
-  // const targetIndex = todos.findIndex((todo) => todo.id === todoId);
-  // const data = await context.request.body().value;
-  // todos[targetIndex].text = data.text;
-  // context.response.body = {
-  //   message: "Updated todo!",
-  //   todos
-  // };
+  const todoId = context.params.todoId!;
+  const data = await context.request.body().value;
+
+  await getDb()
+    .collection("todos")
+    .updateOne({ _id: new ObjectId(todoId) }, { $set: { text: data.text } });
+
+  const todos = await getDb().collection("todos").find();
+  const formattedTodos = todos.map((todo) => {
+    return { id: todo._id.$oid, text: todo.text };
+  });
+
+  context.response.body = {
+    message: "Updated todo!",
+    formattedTodos
+  };
 });
 
-router.delete("/todos/:todoId", (context) => {
-  // const todoId = context.params.todoId;
-  // todos = todos.filter((todo) => todo.id !== todoId);
-  // context.response.body = {
-  //   message: "Deleted todo!",
-  //   todos
-  // };
+router.delete("/todos/:todoId", async (context) => {
+  const todoId = context.params.todoId!;
+
+  await getDb()
+    .collection("todos")
+    .deleteOne({ _id: new ObjectId(todoId) });
+
+  const todos = await getDb().collection("todos").find();
+  const formattedTodos = todos.map((todo) => {
+    return { id: todo._id.$oid, text: todo.text };
+  });
+
+  context.response.body = {
+    message: "Deleted todo!",
+    formattedTodos
+  };
 });
 
 export default router;
