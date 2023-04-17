@@ -6,9 +6,9 @@ import "https://deno.land/std@0.183.0/dotenv/load.ts";
 
 let db: Database;
 
-export function connect() {
+export async function connect() {
   const client = new MongoClient();
-  client.connect(Deno.env.get("DB_CONNECTION_STRING")!);
+  await client.connect(Deno.env.get("DB_CONNECTION_STRING")!);
 
   db = client.database("deno");
 }
