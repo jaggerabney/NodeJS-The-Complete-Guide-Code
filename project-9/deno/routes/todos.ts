@@ -1,5 +1,7 @@
 import { Router } from "https://deno.land/x/oak/mod.ts";
 
+import { getDb } from "../helpers/db_client.ts";
+
 const router = new Router();
 
 interface Todo {
